@@ -6,7 +6,7 @@
 
 /** The Server class handles client connections and communicates with the database. Clients
 *	connect to the server via an RMI object.
-*	@author Eric So
+*	@author Eric So, Bruce Kennedy
 *	@version 1.0
 */
 
@@ -14,21 +14,41 @@ import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.RMISecurityManager;
 import java.rmi.server.UnicastRemoteObject;
-
+import java.util.*;
 
 public class Server extends UnicastRemoteObject implements TicketServer {
+
+	public static void main(String[] args) {
+		
+		try {
+			// Try to create a Server object
+			Server server = new Server(args[0]);
+			
+			// Bind server to the name "TicketServer"
+			Naming.rebind("TicketServer", server);
+			System.out.println("TicketServer is bound in registry");
+			
+			// TODO security manager?
+			
+		} catch (Exception e) {
+			System.out.println("Server error: " + e.getMessage());
+            e.printStackTrace();
+		}
+	}
 	
 	private ArrayList<String> clientsLoggedOn;
 	private ArrayList<Ticket> activeTickets;
+	private Database db;
 	
-	
-	public Server() throws RemoteException {
+	public Server(String ODBCString) throws RemoteException {
 		super();
 		
 		System.out.println("*************************************************");
 		System.out.println("**** Help Desk Ticket Manager Server Started ****");
 		System.out.println("*************************************************");
-		
+		// CONNECT to database
+		Database db = new Database(ODBCString);
+			
 		this.clientsLoggedOn = new ArrayList<String>();
 		
 		// TODO probably makes better sense to recover these from the Database class
@@ -37,17 +57,23 @@ public class Server extends UnicastRemoteObject implements TicketServer {
 		
 	}
 	
-	public void logon(String username) throws RemoteException {
-		if (!clientsLoggedOn.contains(username)) {
-			clientsLoggedOn.add(username);
+	public boolean logon(String username) throws RemoteException {
+		User user = db.getUserByLogon(username);
+		if (user == null){
+			return false;
+		}else{
+			if (!clientsLoggedOn.contains(username)) {
+				clientsLoggedOn.add(username);
+			}
 		}
+		return true;
 	}
 	
-	public void logoff(String username) throws RemoteException {
+	public boolean logoff(String username) throws RemoteException {
 		if (clientsLoggedOn.contains(username)) {
 			clientsLoggedOn.remove(username);
 		}
-	
+		return true;
 	}
 	
 	/**
@@ -79,23 +105,7 @@ public class Server extends UnicastRemoteObject implements TicketServer {
 	}
 	
 	
-	public static void main(String[] args) {
-		
-		try {
-			// Try to create a Server object
-			Server server = new Server();
-			
-			// Bind server to the name "TicketServer"
-			Naming.rebind("TicketServer", server);
-			System.out.println("TicketServer is bound in registry");
-			
-			// TODO security manager?
-			
-		} catch (Exception e) {
-			System.out.println("Server error: " + e.getMessage());
-            e.printStackTrace();
-		}
-	}
+
 
 
 }

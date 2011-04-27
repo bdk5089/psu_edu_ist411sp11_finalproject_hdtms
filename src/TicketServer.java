@@ -11,15 +11,15 @@
 
 import java.rmi.Remote;
 import java.rmi.RemoteException; 
-
+import java.util.*;
 
 public interface TicketServer extends Remote {
 
-	public void logon(String username) throws RemoteException;
+	public boolean logon(String username) throws RemoteException;
 	
-	public void logoff(String username) throws RemoteException;
+	public boolean logoff(String username) throws RemoteException;
 	
-	public void updateTicket(String username, Ticket ticket) throws RemoteException;
+	public boolean updateTicket(String username, Ticket ticket) throws RemoteException;
 	
 	public ArrayList<Ticket> getActiveTickets() throws RemoteException;
 

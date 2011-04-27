@@ -1,11 +1,58 @@
+/*
+	Filename: Database.Java
+	Classname: Database
+	Comments: The Database access for our Ticketing system
+*/
+
+/** The Database class handles SQL and ODBC connection to the database
+*	@author Eric So, Bruce Kennedy
+*	@version 1.0
+*/
 import java.util.*;
 import java.sql.*;
 import java.sql.Date;
+import java.lang.Integer;
+import java.lang.reflect.Array;
 
 
 public class Database {
+		
+	public static void main(String[] args){
+		Database d = new Database(args[0]);
+		
+		System.out.println("**************************************");
+		System.out.println("**** TESTING DATABASE............ ****");
+		System.out.println("**************************************");
+		System.out.println("**** GETTING USERS                ****");
+		ArrayList<User> users = d.getUsers();
+		for(int i=0;i<users.size();i++){
+			System.out.println("User : "+users.get(i));
+		}
+		System.out.println("**** GETTING STATUS CODES         ****");
+		ArrayList<StatusCode> stati = d.getStatusCodes();
+		for(int i=0;i<stati.size();i++){
+			System.out.println("Status : "+stati.get(i));
+		}		
+		System.out.println("**** GETTING RESOLUTION CODES     ****");
+		ArrayList<ResolutionCode> resi = d.getResolutionCodes();
+		for(int i=0;i<resi.size();i++){
+			System.out.println("Resolution : "+resi.get(i));
+		}	
+		System.out.println("**** GETTING TICKETS              ****");
+		ArrayList<Integer> s = new ArrayList(2);
+		s.add(1);
+		s.add(2);
+		ArrayList<Ticket> tickets = d.getTicketsByStatus(s);
+		for(int i=0;i<tickets.size();i++){
+			System.out.println("Ticket : "+tickets.get(i));
+		}
+		System.out.println("**** GETTING SINGLE USER          ****");
+		User user = d.getUserByLogon("bdk5089");
+		System.out.println("User : "+user);
+		
+	}
 	
-	public Connection connect;
+	private Connection connect;
 	
 	public Database(String s){
 		try{
@@ -25,15 +72,14 @@ public class Database {
 		boolean success = true;
 		try{
 			Statement insert = connect.createStatement();
-			String sql = "INSERT INTO tblTickets (TicketID, TicketSummaryDesc, TicketStatusCodeID, TicketResolutionDesc, TicketResolutionCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime) VALUES("
-					+ t.getID() + ", "
+			String sql = "INSERT INTO tblTickets (TicketSummaryDesc, TicketStatusCodeID, TicketResolutionDesc, TicketResolutionCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime) VALUES("
 					+ "'" + t.getDesc() + "', "
 					+ "'" + t.getStatusCode().getID() + "', "
 					+ "'" + t.getResolution() + "', "
 					+ "'" + t.getResolutionCode().getID() + "', "
 					+ "'" + t.getCheckedOutBy().getID() + "', "
 					+ "#" + t.getCheckedOutDate() + "#"
-					+ "')";
+					+ ")";
 			insert.executeUpdate(sql);
 			insert.close();
 		}catch(SQLException e){
@@ -68,6 +114,8 @@ public class Database {
 		}
 		return recordSet;
 	}
+	
+	
 	public Ticket getTicketByID(int id){
 		Ticket record = null;
 		try{
@@ -93,20 +141,45 @@ public class Database {
 		return record;
 	}
 	
-/*  THIS NEEDS WORK */
+	public ArrayList<Ticket> getTicketsByStatus(ArrayList<Integer> sc){
+		String list = sc.toString();
+		list = list.replace("[","(");
+		list = list.replace("]",")");
+		ArrayList<Ticket> recordSet = new ArrayList<Ticket>();
+		Ticket record = null;
+		try{
+			Statement select = connect.createStatement();
+			String sql = "SELECT TicketID, TicketSummaryDesc, TicketStatusCodeID, TicketResolutionDesc, TicketResolutionCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime FROM tblTickets WHERE TicketStatusCodeID IN "+list+"";
+			ResultSet results = select.executeQuery(sql);
+			while (results.next()){
+				int TicketID = results.getInt(1);
+				String TicketSummaryDesc= results.getString(2);
+				StatusCode TicketStatusCodeID = getStatusCodeByID(results.getInt(3));
+				String TicketResolutionDesc = results.getString(4);
+				ResolutionCode TicketResolutionCodeID = getResolutionCodeByID(results.getInt(5));
+				User TicketCheckedOutByUserID = getUserByID(results.getInt(6));
+				Date TicketCheckedOutDateTime = results.getDate(7);
+				record = new Ticket(TicketID, TicketSummaryDesc, TicketResolutionDesc, TicketResolutionCodeID, TicketStatusCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime);
+				recordSet.add(record);
+			}
+			results.close();
+			select.close();
+		}catch(SQLException e){
+			e.printStackTrace();
+		}
+		return recordSet;
+	}
+	
 	public boolean insertTicketLogEntry(TicketLogEntry t){
 		boolean success = true;
 		try{
 			Statement insert = connect.createStatement();
-			String sql = "INSERT INTO tblTickets (TicketWorkLogID, TicketID, TicketWorkLogEntry, TicketWorkPerformedByUserID, TicketWorkLogEntryDateTime) VALUES("
-					+ t.getID() + ", "
-					+ "'" + t.getDesc() + "', "
-					+ "'" + t.getStatusCode().getID() + "', "
-					+ "'" + t.getResolution() + "', "
-					+ "'" + t.getResolutionCode().getID() + "', "
-					+ "'" + t.getCheckedOutBy().getID() + "', "
-					+ "#" + t.getCheckedOutDate() + "#"
-					+ "')";
+			String sql = "INSERT INTO tblTicketWorkLogs (TicketID, TicketWorkLogEntry, TicketWorkPerformedByUserID, TicketWorkLogEntryDateTime) VALUES("
+					+ "'" + t.getTicketID() + "', "
+					+ "'" + t.getEntry() + "', "
+					+ "'" + t.getPerformedBy().getID() + "', "
+					+ "#" + t.getPerformedDate() + "#"
+					+ ")";
 			insert.executeUpdate(sql);
 			insert.close();
 		}catch(SQLException e){
@@ -115,12 +188,17 @@ public class Database {
 		}
 		return success;
 	}
-	public ArrayList<TicketLogEntry> getTicketLogEntries(){
+	
+	public ArrayList<TicketLogEntry> getTicketLogEntriesByTicket(Ticket t){
+		return getTicketLogEntriesByTicket(t.getID());
+	}
+	
+	public ArrayList<TicketLogEntry> getTicketLogEntriesByTicket(int i){
 		ArrayList<TicketLogEntry> recordSet = new ArrayList<TicketLogEntry>();
 		TicketLogEntry record = null;
 		try{
 			Statement select = connect.createStatement();
-			String sql = "SELECT TicketWorkLogID, TicketID, TicketWorkLogEntry, TicketWorkPerformedByUserID, TicketWorkLogEntryDateTime FROM  tblTicketWorkLog";
+			String sql = "SELECT TicketWorkLogID, TicketID, TicketWorkLogEntry, TicketWorkPerformedByUserID, TicketWorkLogEntryDateTime FROM tblTicketWorkLog WHERE TicketID = "+i;
 			ResultSet results = select.executeQuery(sql);
 			while (results.next()){
 				int TicketWorkLogID = results.getInt(1);
@@ -206,7 +284,28 @@ public class Database {
 		}
 		return record;
 	}
-
+	public User getUserByLogon(String l){
+		User record = null;
+		try{
+			Statement select = connect.createStatement();
+			String sql = "SELECT UserID, UserLogon, UserName, UserRoleID FROM  tblUsers WHERE UserLogon = '" + l + "'";
+			ResultSet results = select.executeQuery(sql);
+			while (results.next()){
+				int UserID = results.getInt(1);
+				String UserLogon= results.getString(2);
+				String UserName = results.getString(3);
+				UserRole UserRoleID = getUserRoleByID(results.getInt(4));
+				record = new User(UserID, UserLogon, "<hidden>", UserName, UserRoleID);
+				break;
+			}
+			results.close();
+			select.close();
+		}catch(SQLException e){
+			e.printStackTrace();
+		}
+		return record;
+	}
+	
 	public ArrayList<UserRole> getUserRoles(){
 		ArrayList<UserRole> recordSet = new ArrayList<UserRole>();
 		UserRole record = null;
@@ -228,6 +327,7 @@ public class Database {
 		}
 		return recordSet;
 	}
+	
 	public UserRole getUserRoleByID(int id){
 		UserRole record = null;
 		try{
@@ -334,116 +434,4 @@ public class Database {
 		return record;
 	}	
 
-	/*
-	public void clear(){
-		System.out.println("Clear all CDs");
-		try{
-			Statement clearCDs = connect.createStatement();
-			String sql = "DELETE FROM CDs;";
-			//System.out.println("Executing statement: " + sql);
-			clearCDs.executeUpdate(sql);
-			clearCDs.close();
-			//System.out.println("CDs cleared successfully!");
-		}catch(SQLException e){e.printStackTrace();}
-	}
-	
-	public void insertCD(CD cd){
-		System.out.println("Adding CD: " + cd.toString());
-		try{
-			Statement addCD = connect.createStatement();
-			String sql = "INSERT INTO CDs (CD_id,title,artist) VALUES("
-					+ cd.getNumber() + ", "
-					+ "'" + cd.getTitle() + "', "
-					+ "'" + cd.getArtist() + "')";
-
-			//System.out.println("Executing statement: " + sql);
-			addCD.executeUpdate(sql);
-			addCD.close();
-			//System.out.println("CD added successfully!");
-		}catch(SQLException e){e.printStackTrace();}
-	}
-	
-	public void removeCD(CD cd){
-		System.out.println("Removing CD: " + cd.toString());
-		try{
-			Statement deleteCD = connect.createStatement();
-			String sql = "DELETE FROM CDs WHERE CD_id = "+cd.getNumber()+";";
-
-			//System.out.println("Executing statement: " + sql);
-			deleteCD.executeUpdate(sql);
-			deleteCD.close();
-			//System.out.println("CD removed successfully!");
-		}catch(SQLException e){e.printStackTrace();}
-	}
-	public ArrayList<CD> findAll(){
-		ArrayList<CD> cds = new ArrayList<CD>();
-		try{
-			Statement selectAll = connect.createStatement();
-			String sql = "SELECT * FROM CDs ";
-			ResultSet results = selectAll.executeQuery(sql);
-			while (results.next()){
-				int number = results.getInt(1);
-				String title= results.getString(2);
-				String artist = results.getString(3);
-				CD cd = new CD(number, title,artist);
-				cds.add(cd);
-			}
-			results.close();
-			selectAll.close();
-		}catch(SQLException e){
-			e.printStackTrace();
-		}
-		return cds;
-	}
-	
-	public ArrayList<CD> findByTitle(String s){
-		System.out.println("Searching for title: '" + s+"'");
-		ArrayList<CD> cds = new ArrayList<CD>();
-		try{
-			Statement selectByTitle = connect.createStatement();
-			String sql = "SELECT * FROM CDs WHERE title LIKE '%" +s+ "%' " 
-						+ "OR title LIKE '" +s+ "%' "
-						+ "OR title LIKE '%" +s+ "' ";
-			ResultSet results = selectByTitle.executeQuery(sql);
-			while (results.next()){
-				int number = results.getInt(1);
-				String title= results.getString(2);
-				String artist = results.getString(3);
-				CD cd = new CD(number, title,artist);
-				System.out.println("CD found: "+cd.toString());
-				cds.add(cd);
-			}
-			results.close();
-			selectByTitle.close();
-		}catch(SQLException e){
-			e.printStackTrace();
-		}
-		return cds;
-	}
-	
-	public ArrayList<CD> findByArtist(String s){
-		System.out.println("Searching for artist: '" + s+"'");
-		ArrayList<CD> cds = new ArrayList<CD>();
-		try{
-			Statement selectByArtist = connect.createStatement();
-			String sql = "SELECT * FROM CDs WHERE artist LIKE '%" +s+ "%' " 
-						+ "OR artist LIKE '" +s+ "%' "
-						+ "OR artist LIKE '%" +s+ "' ";
-			ResultSet results = selectByArtist.executeQuery(sql);
-			while (results.next()){
-				int number = results.getInt(1);
-				String title= results.getString(2);
-				String artist = results.getString(3);
-				CD cd = new CD(number, title,artist);
-				System.out.println("CD found: "+cd.toString());
-				cds.add(cd);
-			}
-			results.close();
-			selectByArtist.close();
-		}catch(SQLException e){
-			e.printStackTrace();
-		}
-		return cds;
-	}	
-	*/
 }

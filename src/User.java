@@ -14,8 +14,8 @@ public class User implements java.io.Serializable{
 	private UserRole role;
 
 	/**
-	*	User (String n, String i)
-	*	@param n is the name of the user
+	*	User(int i, String l, String p, String n, UserRole r)
+	*	@param i is the user's id (0 if not yet stored in database);
 	*	@param l is the user's logon
 	*	@param p is the password (this needs to be hashed)
 	*	@param n is the user's name
@@ -23,6 +23,20 @@ public class User implements java.io.Serializable{
 	*/	
 	public User(int i, String l, String p, String n, UserRole r){
 		id = i;
+		name = n;
+		logon = l;
+		password =p;
+		role = r;
+	}
+	/**
+	*	User(String l, String p, String n, UserRole r)
+	*	@param l is the user's logon
+	*	@param p is the password (this needs to be hashed)
+	*	@param n is the user's name
+	*	@param r is the user's role
+	*/	
+	public User(String l, String p, String n, UserRole r){
+		id = 0;
 		name = n;
 		logon = l;
 		password =p;

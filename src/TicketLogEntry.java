@@ -13,10 +13,12 @@ public class TicketLogEntry implements java.io.Serializable{
 	private User performedBy;
 	private Date performedDate;
 	/**
-	*	StatusCode (int i, String n, String d)
-	*	@param i is the ID for data reference
-	*	@param n is the name (displayed in UI)
-	*	@param d is the description
+	*	TicketLogEntry(int i, int r, String l, User u, Date d)
+	*	@param i is the log entry id (assigned by database, 0 if not yet submitted to database);
+	*	@param r is the ticket id reference;
+	*	@param l is the log engry text;
+	*	@param u is the User that made the log entry;
+	*	@param d is the date the log entry was created;
 	*/	
 	public TicketLogEntry(int i, int r, String l, User u, Date d){
 		id = i;
@@ -25,9 +27,15 @@ public class TicketLogEntry implements java.io.Serializable{
 		performedBy = u;
 		performedDate = d;
 	}
-	
+	/**
+	*	TicketLogEntry(int r, String l, User u, Date d)
+	*	@param r is the ticket id reference;
+	*	@param l is the log engry text;
+	*	@param u is the User that made the log entry;
+	*	@param d is the date the log entry was created;
+	*/		
 	public TicketLogEntry(int r, String l, User u, Date d){
-		id = null;
+		id = 0;
 		ticketID = r;
 		logEntry = l;
 		performedBy = u;
@@ -70,10 +78,10 @@ public class TicketLogEntry implements java.io.Serializable{
 		return performedBy;
 	}	
 	/**
-	*	getPerformedByDate ()
+	*	getPerformedDate ()
 	*	returns the date of the work performed
 	*/
-	public Date getPerformedByDate(){
+	public Date getPerformedDate(){
 		return performedDate;
 	}	
 	/**

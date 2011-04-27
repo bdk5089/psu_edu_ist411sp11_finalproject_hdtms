@@ -16,8 +16,8 @@ public class Ticket implements java.io.Serializable{
 	private Date checkedOutDate;
 	private ArrayList<TicketLogEntry> logEntries;
 	/**
-	*	StatusCode (int i, String n, String d)
-	*	@param i is the Ticket id;
+	*	Ticket(int i, String d, String r, ResolutionCode rc, StatusCode sc, User cb, Date cbd)
+	*	@param i is the Ticket id (0 if not stored/retrieved from database);
 	*	@param d is the ticket description (i.e., what's wrong);
 	*	@param r is the ticket resolution (i.e., final fix);
 	*	@param rc is the resolution code pertaining to the resolution;
@@ -27,6 +27,24 @@ public class Ticket implements java.io.Serializable{
 	*/	
 	public Ticket(int i, String d, String r, ResolutionCode rc, StatusCode sc, User cb, Date cbd){
 		id = i;
+		desc = d;
+		res = r;
+		resCode = rc;
+		statusCode = sc;
+		checkedOutBy = cb;
+		checkedOutDate = cbd;
+	}
+	/**
+	*	Ticket(String d, String r, ResolutionCode rc, StatusCode sc, User cb, Date cbd)
+	*	@param d is the ticket description (i.e., what's wrong);
+	*	@param r is the ticket resolution (i.e., final fix);
+	*	@param rc is the resolution code pertaining to the resolution;
+	*	@param sc is the status code representing current status;
+	*	@param cb is the User the ticket is checked out by;
+	*	@param cbd is the date the User checked out the ticket;
+	*/	
+	public Ticket(String d, String r, ResolutionCode rc, StatusCode sc, User cb, Date cbd){
+		id = 0;
 		desc = d;
 		res = r;
 		resCode = rc;
@@ -94,6 +112,10 @@ public class Ticket implements java.io.Serializable{
 	public ArrayList<TicketLogEntry> getLogEntries(){
 		return logEntries;
 	}
+	public void setLogEntries(ArrayList<TicketLogEntry> c){
+		logEntries = c;
+	}
+	
 	public boolean addLogEntry(TicketLogEntry l){
 		try{
 			logEntries.add(l);
