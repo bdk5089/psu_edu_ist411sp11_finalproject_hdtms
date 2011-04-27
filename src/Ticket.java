@@ -14,7 +14,7 @@ public class Ticket implements java.io.Serializable{
 	private StatusCode statusCode;
 	private User checkedOutBy;
 	private Date checkedOutDate;
-	private Vector<TicketLogEntry> logEntries;
+	private ArrayList<TicketLogEntry> logEntries;
 	/**
 	*	StatusCode (int i, String n, String d)
 	*	@param i is the Ticket id;
@@ -91,7 +91,7 @@ public class Ticket implements java.io.Serializable{
 		return ""+desc+" ["+getStatusCode()+"]";
 	}
 	
-	public Vector<TicketLogEntry> getLogEntries(){
+	public ArrayList<TicketLogEntry> getLogEntries(){
 		return logEntries;
 	}
 	public boolean addLogEntry(TicketLogEntry l){

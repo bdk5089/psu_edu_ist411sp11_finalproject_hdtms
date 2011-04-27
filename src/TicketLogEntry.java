@@ -8,7 +8,7 @@ import java.util.*;
 public class TicketLogEntry implements java.io.Serializable{
 	
 	private int id;
-	private Ticket ticket;
+	private int ticketID;
 	private String logEntry;
 	private User performedBy;
 	private Date performedDate;
@@ -18,18 +18,42 @@ public class TicketLogEntry implements java.io.Serializable{
 	*	@param n is the name (displayed in UI)
 	*	@param d is the description
 	*/	
-	public TicketLogEntry(int i, String l, User u, Date d){
+	public TicketLogEntry(int i, int r, String l, User u, Date d){
 		id = i;
+		ticketID = r;
 		logEntry = l;
 		performedBy = u;
 		performedDate = d;
 	}
+	
+	public TicketLogEntry(int r, String l, User u, Date d){
+		id = null;
+		ticketID = r;
+		logEntry = l;
+		performedBy = u;
+		performedDate = d;
+	}
+	
 	/**
 	*	getID ()
-	*	returns the user's UUID value
+	*	returns log ID value
 	*/	
 	public int getID(){
 		return id;
+	}
+	/**
+	*	setID ()
+	*	sets the log ID value
+	*/	
+	public void setID(int i){
+		id = i;
+	}
+	/**
+	*	getTicketID ()
+	*	returns ticket ID value
+	*/	
+	public int getTicketID(){
+		return ticketID;
 	}
 	/**
 	*	getEntry ()
