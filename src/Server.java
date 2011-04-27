@@ -1,16 +1,100 @@
+/*
+	Filename: Server.Java
+	Classname: Server
+	Comments: The RMI Server for our Ticketing system
+*/
+
+/** The Server class handles client connections and communicates with the database. Clients
+*	connect to the server via an RMI object.
+*	@author Eric So
+*	@version 1.0
+*/
+
+import java.rmi.Naming;
+import java.rmi.RemoteException;
+import java.rmi.RMISecurityManager;
+import java.rmi.server.UnicastRemoteObject;
 
 
-public class Server {
+public class Server extends UnicastRemoteObject implements TicketServer {
 	
-	public static void run(String[] args){
-		System.out.println("**** Running....");
-		Server server = new Server();
-	}
-
-	public Server(){
+	private ArrayList<String> clientsLoggedOn;
+	private ArrayList<Ticket> activeTickets;
+	
+	
+	public Server() throws RemoteException {
+		super();
+		
 		System.out.println("*************************************************");
 		System.out.println("**** Help Desk Ticket Manager Server Started ****");
 		System.out.println("*************************************************");
+		
+		this.clientsLoggedOn = new ArrayList<String>();
+		
+		// TODO probably makes better sense to recover these from the Database class
+		// Or we could write a method to manually add each to the ArrayList
+		this.activeTickets = new ArrayList<Ticket>();
+		
+	}
+	
+	public void logon(String username) throws RemoteException {
+		if (!clientsLoggedOn.contains(username)) {
+			clientsLoggedOn.add(username);
+		}
+	}
+	
+	public void logoff(String username) throws RemoteException {
+		if (clientsLoggedOn.contains(username)) {
+			clientsLoggedOn.remove(username);
+		}
+	
+	}
+	
+	/**
+	*	updateTicket (String username, Ticket ticket)
+	*	@param username is the username of the client
+	*	@param ticket is the Ticket object being updated
+	*	@throws RemoteException
+	*	@return returns a boolean indicating successfull ticket update (true = success)
+	*/	
+	public boolean updateTicket(String username, Ticket ticket) throws RemoteException {
+		// TODO get changes done to ticket and send to database
+		
+		// Check to see if the communicating client is logged on
+		boolean loggedOn = clientsLoggedOn.contains(username);
+		
+		if (loggedOn) {
+			// do stuff
+			
+			return true;
+		} else {
+			// User is not logged on
+			
+			return false;
+		}
+	}
+	
+	public ArrayList<Ticket> getActiveTickets() throws RemoteException {
+		return activeTickets;
+	}
+	
+	
+	public static void main(String[] args) {
+		
+		try {
+			// Try to create a Server object
+			Server server = new Server();
+			
+			// Bind server to the name "TicketServer"
+			Naming.rebind("TicketServer", server);
+			System.out.println("TicketServer is bound in registry");
+			
+			// TODO security manager?
+			
+		} catch (Exception e) {
+			System.out.println("Server error: " + e.getMessage());
+            e.printStackTrace();
+		}
 	}
 
 
