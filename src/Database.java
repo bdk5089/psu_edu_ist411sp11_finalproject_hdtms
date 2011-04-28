@@ -38,6 +38,8 @@ public class Database {
 		for(int i=0;i<resi.size();i++){
 			System.out.println("Resolution : "+resi.get(i));
 		}	
+
+		
 		System.out.println("**** GETTING TICKETS              ****");
 		ArrayList<Integer> s = new ArrayList(2);
 		s.add(1);
@@ -45,6 +47,10 @@ public class Database {
 		ArrayList<Ticket> tickets = d.getTicketsByStatus(s);
 		for(int i=0;i<tickets.size();i++){
 			System.out.println("Ticket : "+tickets.get(i));
+			ArrayList<TicketLogEntry> logs = tickets.get(i).getLogEntries();
+			for (int j=0;j<logs.size();j++){
+				System.out.println("   Log : "+logs.get(j));
+			}
 		}
 		System.out.println("**** GETTING SINGLE USER          ****");
 		User user = d.getUserByLogon("bdk5089");
@@ -71,17 +77,41 @@ public class Database {
 	public boolean insertTicket(Ticket t){
 		boolean success = true;
 		try{
-			Statement insert = connect.createStatement();
-			String sql = "INSERT INTO tblTickets (TicketSummaryDesc, TicketStatusCodeID, TicketResolutionDesc, TicketResolutionCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime) VALUES("
-					+ "'" + t.getDesc() + "', "
-					+ "'" + t.getStatusCode().getID() + "', "
-					+ "'" + t.getResolution() + "', "
-					+ "'" + t.getResolutionCode().getID() + "', "
-					+ "'" + t.getCheckedOutBy().getID() + "', "
-					+ "#" + t.getCheckedOutDate() + "#"
-					+ ")";
-			insert.executeUpdate(sql);
-			insert.close();
+			//Don't insert the ticket if it already has an ID,
+			//having an ID means that it already is in the database.
+			if (t.getID() == 0){
+				Statement insert = connect.createStatement();
+				String sql = "INSERT INTO tblTickets (TicketSummaryDesc, TicketStatusCodeID, TicketResolutionDesc, TicketResolutionCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime) VALUES("
+						+ "'" + t.getDesc() + "', "
+						+ "'" + t.getStatusCode().getID() + "', "
+						+ "'" + t.getResolution() + "', "
+						+ "'" + t.getResolutionCode().getID() + "', "
+						+ "'" + t.getCheckedOutBy().getID() + "', "
+						+ "#" + t.getCheckedOutDate() + "#"
+						+ ")";
+				insert.executeUpdate(sql);
+				insert.close();
+				
+			//We could do an update of the ticket based on the fact that 
+			//there already is an ID
+			}else if (t.getID() >0){
+				Statement update = connect.createStatement();
+				String sql = "UPDATE tblTickets SET "
+						+ " TicketSummaryDesc = '"+t.getDesc()+"'"
+						+ ",TicketStatusCodeID = "+t.getStatusCode().getID()+""
+						+ ",TicketResolutionDesc = '"+t.getResolution()+"'"
+						+ ",TicketResolutionCodeID = "+t.getResolutionCode().getID()+""
+						+ ",TicketCheckedOutByUserID = "+t.getCheckedOutBy().getID()+""
+						+ ",TicketCheckedOutDateTime = #"+t.getCheckedOutDate()+"#"
+						+ " WHERE TicketID = "+t.getID()+"" ;
+				update.executeUpdate(sql);
+				update.close();
+			}
+			ArrayList<TicketLogEntry> logs = t.getLogEntries();
+			for(int i=0;i<logs.size();i++){
+				insertTicketLogEntry(logs.get(i));
+			}
+			
 		}catch(SQLException e){
 			success = false;
 			e.printStackTrace();
@@ -104,7 +134,14 @@ public class Database {
 				ResolutionCode TicketResolutionCodeID = getResolutionCodeByID(results.getInt(5));
 				User TicketCheckedOutByUserID = getUserByID(results.getInt(6));
 				Date TicketCheckedOutDateTime = results.getDate(7);
-				record = new Ticket(TicketID, TicketSummaryDesc, TicketResolutionDesc, TicketResolutionCodeID, TicketStatusCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime);
+				record = new Ticket(TicketID, 
+									TicketSummaryDesc, 
+									TicketResolutionDesc, 
+									TicketResolutionCodeID, 
+									TicketStatusCodeID, 
+									TicketCheckedOutByUserID, 
+									TicketCheckedOutDateTime);
+				record.setLogEntries(getTicketLogEntriesByTicket(record.getID()));
 				recordSet.add(record);
 			}
 			results.close();
@@ -130,7 +167,14 @@ public class Database {
 				ResolutionCode TicketResolutionCodeID = getResolutionCodeByID(results.getInt(5));
 				User TicketCheckedOutByUserID = getUserByID(results.getInt(6));
 				Date TicketCheckedOutDateTime = results.getDate(7);
-				record = new Ticket(TicketID, TicketSummaryDesc, TicketResolutionDesc, TicketResolutionCodeID, TicketStatusCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime);
+				record = new Ticket(TicketID, 
+									TicketSummaryDesc, 
+									TicketResolutionDesc, 
+									TicketResolutionCodeID, 
+									TicketStatusCodeID, 
+									TicketCheckedOutByUserID, 
+									TicketCheckedOutDateTime);
+				record.setLogEntries(getTicketLogEntriesByTicket(record.getID()));
 				break;
 			}
 			results.close();
@@ -159,7 +203,14 @@ public class Database {
 				ResolutionCode TicketResolutionCodeID = getResolutionCodeByID(results.getInt(5));
 				User TicketCheckedOutByUserID = getUserByID(results.getInt(6));
 				Date TicketCheckedOutDateTime = results.getDate(7);
-				record = new Ticket(TicketID, TicketSummaryDesc, TicketResolutionDesc, TicketResolutionCodeID, TicketStatusCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime);
+				record = new Ticket(TicketID, 
+									TicketSummaryDesc, 
+									TicketResolutionDesc, 
+									TicketResolutionCodeID, 
+									TicketStatusCodeID, 
+									TicketCheckedOutByUserID, 
+									TicketCheckedOutDateTime);
+				record.setLogEntries(getTicketLogEntriesByTicket(record.getID()));
 				recordSet.add(record);
 			}
 			results.close();
@@ -173,15 +224,30 @@ public class Database {
 	public boolean insertTicketLogEntry(TicketLogEntry t){
 		boolean success = true;
 		try{
-			Statement insert = connect.createStatement();
-			String sql = "INSERT INTO tblTicketWorkLogs (TicketID, TicketWorkLogEntry, TicketWorkPerformedByUserID, TicketWorkLogEntryDateTime) VALUES("
-					+ "'" + t.getTicketID() + "', "
-					+ "'" + t.getEntry() + "', "
-					+ "'" + t.getPerformedBy().getID() + "', "
-					+ "#" + t.getPerformedDate() + "#"
-					+ ")";
-			insert.executeUpdate(sql);
-			insert.close();
+			//Only insert ticket log entry if there is no ID, 
+			//means it hasn't been submitted to db
+			if (t.getID() == 0){
+				Statement insert = connect.createStatement();
+				String sql = "INSERT INTO tblTicketWorkLogs (TicketID, TicketWorkLogEntry, TicketWorkPerformedByUserID, TicketWorkLogEntryDateTime) VALUES("
+						+ "'" + t.getTicketID() + "', "
+						+ "'" + t.getEntry() + "', "
+						+ "'" + t.getPerformedBy().getID() + "', "
+						+ "#" + t.getPerformedDate() + "#"
+						+ ")";
+				insert.executeUpdate(sql);
+				insert.close();
+			//OR if there is an id value then update the ticket log entry
+			}else if (t.getID() >0){
+				Statement update = connect.createStatement();
+				String sql = "UPDATE tblTicketWorkLogs SET "
+						+ " TicketID = "+t.getTicketID()+""
+						+ ",TicketWorkLogEntry = '"+t.getEntry()+"'"
+						+ ",TicketWorkPerformedByUserID = "+t.getPerformedBy().getID()+""
+						+ ",TicketWorkLogEntryDateTime = #"+t.getPerformedDate()+"#"
+						+ " WHERE TicketWorkLogID = "+ t.getID();
+				update.executeUpdate(sql);
+				update.close();
+			}
 		}catch(SQLException e){
 			success = false;
 			e.printStackTrace();
@@ -206,7 +272,10 @@ public class Database {
 				String TicketWorkLogEntry = results.getString(3);
 				User TicketWorkPerformedByUserID = getUserByID(results.getInt(4));
 				Date TicketWorkLogEntryDateTime = results.getDate(5);
-				record = new TicketLogEntry(TicketWorkLogID, TicketWorkLogEntry, TicketWorkPerformedByUserID, TicketWorkLogEntryDateTime);
+				record = new TicketLogEntry(TicketWorkLogID, 
+											TicketWorkLogEntry, 
+											TicketWorkPerformedByUserID, 
+											TicketWorkLogEntryDateTime);
 				recordSet.add(record);
 			}
 			results.close();
@@ -228,7 +297,10 @@ public class Database {
 				String TicketWorkLogEntry = results.getString(3);
 				User TicketWorkPerformedByUserID = getUserByID(results.getInt(4));
 				Date TicketWorkLogEntryDateTime = results.getDate(5);
-				record = new TicketLogEntry(TicketWorkLogID, TicketWorkLogEntry, TicketWorkPerformedByUserID, TicketWorkLogEntryDateTime);
+				record = new TicketLogEntry(TicketWorkLogID, 
+											TicketWorkLogEntry, 
+											TicketWorkPerformedByUserID, 
+											TicketWorkLogEntryDateTime);
 				break;
 			}
 			results.close();
