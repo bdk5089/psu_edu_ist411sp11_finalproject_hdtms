@@ -8,6 +8,7 @@
 *	@author Eric So, Bruce Kennedy
 *	@version 1.0
 */
+
 import java.util.*;
 import java.sql.*;
 import java.sql.Date;
@@ -87,6 +88,38 @@ public class Database {
 			e.printStackTrace();
 		}
 		return success;
+	}
+	
+	// getTicketsWithID returns a HashMap of the Ticket objects mapped to their IDs as Strings
+	public HashMap<String, Ticket> getTicketsWithID() {
+		HashMap<String, Ticket> recordSet = new HashMap<String, Ticket>();
+		Ticket record = null;
+		try{
+			Statement select = connect.createStatement();
+			String sql = "SELECT TicketID, TicketSummaryDesc, TicketStatusCodeID, TicketResolutionDesc, TicketResolutionCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime FROM tblTickets";
+			ResultSet results = select.executeQuery(sql);
+			while (results.next()){
+				int TicketID = results.getInt(1);
+				String TicketSummaryDesc= results.getString(2);
+				StatusCode TicketStatusCodeID = getStatusCodeByID(results.getInt(3));
+				String TicketResolutionDesc = results.getString(4);
+				ResolutionCode TicketResolutionCodeID = getResolutionCodeByID(results.getInt(5));
+				User TicketCheckedOutByUserID = getUserByID(results.getInt(6));
+				Date TicketCheckedOutDateTime = results.getDate(7);
+				
+				// Convert the int TicketID to a String
+				// Note: not sure if the nested contstructor call will work
+				String ticketIDString = (new Integer(TicketID)).toString();
+				
+				record = new Ticket(TicketID, TicketSummaryDesc, TicketResolutionDesc, TicketResolutionCodeID, TicketStatusCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime);
+				recordSet.put(ticketIDString, record);
+			}
+			results.close();
+			select.close();
+		}catch(SQLException e){
+			e.printStackTrace();
+		}
+		return recordSet;
 	}
 	
 	public ArrayList<Ticket> getTickets(){

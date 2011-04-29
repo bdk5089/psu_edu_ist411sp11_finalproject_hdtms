@@ -1,10 +1,11 @@
-import java.util.*;
-
 /** The User class used to store user information and send user information between
 *	a client and a server and vice versa 
 *	@author Bruce Kennedy
 *	@version 1.0
 */
+
+import java.util.*;
+
 public class Ticket implements java.io.Serializable{
 	
 	private int id;

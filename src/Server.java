@@ -37,7 +37,7 @@ public class Server extends UnicastRemoteObject implements TicketServer {
 	}
 	
 	private ArrayList<String> clientsLoggedOn;
-	private ArrayList<Ticket> activeTickets;
+	private HashMap<String, Ticket> activeTickets;
 	private Database db;
 	
 	public Server(String ODBCString) throws RemoteException {
@@ -46,6 +46,7 @@ public class Server extends UnicastRemoteObject implements TicketServer {
 		System.out.println("*************************************************");
 		System.out.println("**** Help Desk Ticket Manager Server Started ****");
 		System.out.println("*************************************************");
+		
 		// CONNECT to database
 		Database db = new Database(ODBCString);
 			
@@ -53,19 +54,21 @@ public class Server extends UnicastRemoteObject implements TicketServer {
 		
 		// TODO probably makes better sense to recover these from the Database class
 		// Or we could write a method to manually add each to the ArrayList
-		this.activeTickets = new ArrayList<Ticket>();
+		this.activeTickets = new HashMap<String, Ticket>();
+		
+		// Get the active tickets from the database
+		activeTickets.
 		
 	}
 	
 	public boolean logon(String username) throws RemoteException {
 		User user = db.getUserByLogon(username);
-		if (user == null){
+		if (user == null) {
 			return false;
-		}else{
-			if (!clientsLoggedOn.contains(username)) {
-				clientsLoggedOn.add(username);
-			}
+		} else if (!clientsLoggedOn.contains(username)) {
+			clientsLoggedOn.add(username);
 		}
+		
 		return true;
 	}
 	
@@ -100,7 +103,7 @@ public class Server extends UnicastRemoteObject implements TicketServer {
 		}
 	}
 	
-	public ArrayList<Ticket> getActiveTickets() throws RemoteException {
+	public HashMap<String, Ticket> getActiveTickets() throws RemoteException {
 		return activeTickets;
 	}
 	

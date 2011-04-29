@@ -21,6 +21,6 @@ public interface TicketServer extends Remote {
 	
 	public boolean updateTicket(String username, Ticket ticket) throws RemoteException;
 	
-	public ArrayList<Ticket> getActiveTickets() throws RemoteException;
+	public HashMap<String, Ticket> getActiveTickets() throws RemoteException;
 
 }
