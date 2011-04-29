@@ -89,6 +89,6 @@ public class TicketLogEntry implements java.io.Serializable{
 	*	returns a string representation of the object  
 	*/	
 	public String toString(){
-		return ""+logEntry+"";
+		return "["+performedDate+"] "+logEntry+"";
 	}
 }
