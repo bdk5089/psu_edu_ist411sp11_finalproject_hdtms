@@ -70,7 +70,14 @@ public class Ticket implements java.io.Serializable{
 	public String getDesc(){
 		return desc;
 	}
-	
+	/**
+	*	setDesc (String d)
+	*	@param d the new description
+	*/
+	public void setDesc(String d){
+		desc = d;
+	}
+		
 	/**
 	*	getStatus ()
 	*   @return returns the status code object
@@ -78,6 +85,14 @@ public class Ticket implements java.io.Serializable{
 	public StatusCode getStatusCode(){
 		return statusCode;
 	}
+	/**
+	*	setStatus (StatusCode sc)
+	*   @param sc is the new StatusCode object
+	*/
+	public void getStatusCode(StatusCode cs){
+		statusCode = cs;
+	}	
+	
 	
 	/**
 	*	getResolution ()
@@ -87,12 +102,29 @@ public class Ticket implements java.io.Serializable{
 		return res;
 	}
 	/**
+	*	setResolution ()
+	*   @param r new resolution string
+	*/
+	public String getResolution(String r){
+		res = r;
+	}	
+	
+	/**
 	*	getResolutionCode ()
 	*   @return returns the resolutionCode
 	*/
 	public ResolutionCode getResolutionCode(){
 		return resCode;
 	}
+	
+	/**
+	*	setResolutionCode(ResolutionCode cr)
+	*   @param cr is the new StatusCode object
+	*/
+	public void setResolutionCode(ResolutionCode cr){
+		resCode = cr;
+	}
+	
 	/**
 	*	getCheckedOutBy ()
 	*   @return returns the user who performed work

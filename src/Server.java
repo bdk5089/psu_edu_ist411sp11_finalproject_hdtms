@@ -209,8 +209,15 @@ public class Server extends UnicastRemoteObject implements TicketServer {
 		return activeTickets;
 	}
 	
-	
+	/**
+	*	getStatusCodes ()
+	*	@return returns a ArrayList of all the status codes.
+	*/	
 
 
+	/**
+	*	getResolutionCodes ()
+	*	@return returns a ArrayList of all the resolution codes.
+	*/	
 
 }
