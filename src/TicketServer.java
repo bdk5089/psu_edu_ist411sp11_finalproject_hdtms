@@ -28,5 +28,5 @@ public interface TicketServer extends Remote {
 	public HashMap<String, Ticket> getActiveTickets() throws RemoteException;
 	
 	public ArrayList<StatusCode> getStatusCodes() throws RemoteException;
-	public ArrayList<StatusCode> getResolutionCodes() throws RemoteException
+	public ArrayList<ResolutionCode> getResolutionCodes() throws RemoteException;
 }

@@ -86,10 +86,10 @@ public class Ticket implements java.io.Serializable{
 		return statusCode;
 	}
 	/**
-	*	setStatus (StatusCode sc)
+	*	setStatusCode (StatusCode sc)
 	*   @param sc is the new StatusCode object
 	*/
-	public void getStatusCode(StatusCode cs){
+	public void setStatusCode(StatusCode cs){
 		statusCode = cs;
 	}	
 	
@@ -105,7 +105,7 @@ public class Ticket implements java.io.Serializable{
 	*	setResolution ()
 	*   @param r new resolution string
 	*/
-	public String getResolution(String r){
+	public void setResolution(String r){
 		res = r;
 	}	
 	

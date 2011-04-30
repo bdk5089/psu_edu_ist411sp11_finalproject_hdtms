@@ -221,7 +221,7 @@ public class Server extends UnicastRemoteObject implements TicketServer {
 	*	getResolutionCodes ()
 	*	@return returns a ArrayList of all the resolution codes.
 	*/	
-	public ArrayList<StatusCode> getResolutionCodes() throws RemoteException {
+	public ArrayList<ResolutionCode> getResolutionCodes() throws RemoteException {
 		return db.getResolutionCodes();
 	}
 }
