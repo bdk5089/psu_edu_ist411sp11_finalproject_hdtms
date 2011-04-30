@@ -213,11 +213,15 @@ public class Server extends UnicastRemoteObject implements TicketServer {
 	*	getStatusCodes ()
 	*	@return returns a ArrayList of all the status codes.
 	*/	
-
+	public ArrayList<StatusCode> getStatusCodes() throws RemoteException {
+		return db.getStatusCodes();
+	}
 
 	/**
 	*	getResolutionCodes ()
 	*	@return returns a ArrayList of all the resolution codes.
 	*/	
-
+	public ArrayList<StatusCode> getResolutionCodes() throws RemoteException {
+		return db.getResolutionCodes();
+	}
 }
