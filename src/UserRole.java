@@ -33,28 +33,28 @@ public class UserRole implements java.io.Serializable{
 
 	/**
 	*	getID ()
-	*	returns the role ID
+	*   @return returns the role ID
 	*/
 	public int getID(){
 		return id;
 	}
 	/**
 	*	getName ()
-	*	returns the role name
+	*   @return returns the role name
 	*/
 	public String getName(){
 		return name;
 	}
 	/**
 	*	getDesc ()
-	*	returns the role description
+	*   @return returns the role description
 	*/	
 	public String getDesc(){
 		return desc;
 	}
 	/**
 	*	toString ()
-	*	returns a string representation of the user with both name and id.  
+	*   @return returns a string representation of the user with both name and id.  
 	*	Displays in a JList.
 	*/	
 	public String toString(){

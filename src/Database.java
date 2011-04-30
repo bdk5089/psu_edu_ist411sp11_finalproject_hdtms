@@ -10,14 +10,25 @@
 */
 
 import java.util.*;
-import java.sql.*;
-import java.sql.Date;
+import java.util.Date;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Statement;
+import java.sql.SQLException;
 import java.lang.Integer;
 import java.lang.reflect.Array;
 
-
 public class Database {
-		
+
+	/**
+	*	main(String[] args)
+	*	@param args is a String array of command-line values used to 
+	*		instantiate the program....this method is used primarily for 
+	*		database testing purposes.
+	*/
 	public static void main(String[] args){
 		Database d = new Database(args[0]);
 		
@@ -40,27 +51,41 @@ public class Database {
 			System.out.println("Resolution : "+resi.get(i));
 		}	
 
-		
-		System.out.println("**** GETTING TICKETS              ****");
-		ArrayList<Integer> s = new ArrayList(2);
-		s.add(1);
-		s.add(2);
-		ArrayList<Ticket> tickets = d.getTicketsByStatus(s);
-		for(int i=0;i<tickets.size();i++){
-			System.out.println("Ticket : "+tickets.get(i));
-			ArrayList<TicketLogEntry> logs = tickets.get(i).getLogEntries();
-			for (int j=0;j<logs.size();j++){
-				System.out.println("   Log : "+logs.get(j));
-			}
-		}
 		System.out.println("**** GETTING SINGLE USER          ****");
 		User user = d.getUserByLogon("bdk5089");
 		System.out.println("User : "+user);
+		
+		System.out.println("**** CREATE A TICKET              ****");
+		Ticket t = new Ticket("New Test Ticket", "", d.getResolutionCodes().get(0), d.getStatusCodes().get(0), user, new Date());
+		TicketLogEntry te = new TicketLogEntry(t.getID(), "Work performed goes here", user, new Date());
+		t.addLogEntry(te);
+		boolean succ = d.updateTicket(t);
+		System.out.println("**** CREATED TICKET [success = "+succ +"]");
+		
+		System.out.println("**** GETTING TICKETS              ****");
+		HashMap<String, Ticket> tickets = d.getActiveTickets();
+        Iterator hashIterator = tickets.keySet().iterator();
+        while(hashIterator.hasNext()) {
+			Object hashIndex = hashIterator.next();
+			Ticket ticket = tickets.get(hashIndex);
+				System.out.println("Ticket :" +ticket.toString());
+			ArrayList<TicketLogEntry> logs = ticket.getLogEntries();
+			for (int j=0;j<logs.size();j++){
+				System.out.println("   Log : "+logs.get(j));
+			}			
+        }
+
+
 		
 	}
 	
 	private Connection connect;
 	
+	/**
+	*	Database(String s)
+	*	@param s is a reference to an ODBC connection in the local machine
+	*		ODBC manager.
+	*/	
 	public Database(String s){
 		try{
 			String url = "jdbc:odbc:"+s;
@@ -71,57 +96,161 @@ public class Database {
 		}
 	}
 	
+	/**
+	*	Database(Connection c)
+	*	@param c is a Connection object to a database
+	*/		
 	public Database(Connection c){
 		connect = c;
 	}
-	
-	public boolean insertTicket(Ticket t){
+	/**
+	*	checkInTicket(Ticket t)
+	*	@param t is the ticket that is being checked in  
+	*	
+	*	@return returns true if successful, false if otherwise
+	*/	
+	public boolean checkInTicket(Ticket t){
 		boolean success = true;
+		try{
+			Statement update = connect.createStatement();
+			String sql = "UPDATE tblTickets SET "
+					+ "TicketCheckedOutByUserID = NULL "
+					+ ",TicketCheckedOutDateTime = NULL "
+					+ " WHERE TicketID = ?" ;
+			PreparedStatement sqlment = connect.prepareStatement(sql);
+			sqlment.setInt(1,t.getID());
+			sqlment.executeUpdate(); 
+			update.close();			
+		}catch(SQLException e){
+			success = false;
+			e.printStackTrace();
+		}
+		return success;		
+	}
+	/**
+	*	checkOutTicket(int id, User u)
+	*	@param id is the ID value of the ticket being checked out.  
+	*	@param u is the User that is checking out the ticket.  
+	*	
+	*	@return returns true if successful, false if otherwise
+	*/	
+	public boolean checkOutTicket(int id, User u){
+		boolean success = true;
+		try{
+			Statement update = connect.createStatement();
+			String sql = "UPDATE tblTickets SET "
+					+ " TicketCheckedOutByUserID = ? "
+					+ ",TicketCheckedOutDateTime = ? "
+					+ " WHERE TicketID = ?" ;
+			PreparedStatement sqlment = connect.prepareStatement(sql);
+			sqlment.setInt(1,u.getID());
+			sqlment.setDate(2,new java.sql.Date(new Date().getTime()));
+			sqlment.setInt(3,id);
+			sqlment.executeUpdate(); 
+			update.close();
+		}catch(SQLException e){
+			success = false;
+			e.printStackTrace();
+		}
+		return success;	
+	}
+	/**
+	*	updateTicket(Ticket t)
+	*	@param t is the ticket that is to be updated.  
+	*       If the ticket ID value is 0, then a new record is inserted into the database.
+	*	   	If the ticket ID value is > 0 then the record is updated.  
+	*	
+	*	@return returns true if successful, false if otherwise
+	*/		
+	public boolean updateTicket(Ticket t){
+		boolean success = true;
+		int newID = 0;
 		try{
 			//Don't insert the ticket if it already has an ID,
 			//having an ID means that it already is in the database.
 			if (t.getID() == 0){
-				Statement insert = connect.createStatement();
-				String sql = "INSERT INTO tblTickets (TicketSummaryDesc, TicketStatusCodeID, TicketResolutionDesc, TicketResolutionCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime) VALUES("
-						+ "'" + t.getDesc() + "', "
-						+ "'" + t.getStatusCode().getID() + "', "
-						+ "'" + t.getResolution() + "', "
-						+ "'" + t.getResolutionCode().getID() + "', "
-						+ "'" + t.getCheckedOutBy().getID() + "', "
-						+ "#" + t.getCheckedOutDate() + "#"
-						+ ")";
-				insert.executeUpdate(sql);
-				insert.close();
-				
+				synchronized(this){
+					//This section is synchronized so that the proper newly created ticket ID can be gotten
+					//and then used to updated the TicketLogEntry objects that need to be updated in the 
+					//database.
+					Statement insert = connect.createStatement();
+					String sql = "INSERT INTO tblTickets (TicketSummaryDesc, TicketStatusCodeID, TicketResolutionDesc, TicketResolutionCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime) VALUES( ?,  ?,  ?,  ?,  ?,  ? )";
+					PreparedStatement sqlment = connect.prepareStatement(sql);
+					sqlment.setString(1,t.getDesc());
+					sqlment.setInt(2,t.getStatusCode().getID());
+					sqlment.setString(3,t.getResolution());
+					sqlment.setInt(4,t.getResolutionCode().getID());
+					sqlment.setInt(5,t.getCheckedOutBy().getID());
+					sqlment.setDate(6,new java.sql.Date(t.getCheckedOutDate().getTime()));
+					sqlment.executeUpdate(); 	
+					insert.close();
+					//Get newly created TicketID value
+					Statement select = connect.createStatement();
+					String sql2 = "SELECT MAX(TicketID) AS newID FROM tblTickets";
+					ResultSet results = select.executeQuery(sql2);
+					while (results.next()){
+						newID = results.getInt(1);
+					}
+					System.out.println("ADDED TICKET ID: "+newID);
+					select.close();
+				}	
+				ArrayList<TicketLogEntry> logs = t.getLogEntries();
+				if (logs != null){
+					for(int i=0;i<logs.size();i++){
+						//Update the ticketID reference in the TicketLogEntry object
+						logs.get(i).setTicketID(newID);
+						//Send the TicketLogEntry object to be updated in the database
+						updateTicketLogEntry(logs.get(i));
+					}
+				}				
 			//We could do an update of the ticket based on the fact that 
 			//there already is an ID
 			}else if (t.getID() >0){
 				Statement update = connect.createStatement();
 				String sql = "UPDATE tblTickets SET "
-						+ " TicketSummaryDesc = '"+t.getDesc()+"'"
-						+ ",TicketStatusCodeID = "+t.getStatusCode().getID()+""
-						+ ",TicketResolutionDesc = '"+t.getResolution()+"'"
-						+ ",TicketResolutionCodeID = "+t.getResolutionCode().getID()+""
-						+ ",TicketCheckedOutByUserID = "+t.getCheckedOutBy().getID()+""
-						+ ",TicketCheckedOutDateTime = #"+t.getCheckedOutDate()+"#"
-						+ " WHERE TicketID = "+t.getID()+"" ;
-				update.executeUpdate(sql);
+						+ " TicketSummaryDesc = ? "
+						+ ",TicketStatusCodeID = ? "
+						+ ",TicketResolutionDesc = ? "
+						+ ",TicketResolutionCodeID = ? "
+						+ " WHERE TicketID = ? " ;
+				PreparedStatement sqlment = connect.prepareStatement(sql);
+				sqlment.setString(1,t.getDesc());
+				sqlment.setInt(2,t.getStatusCode().getID());
+				sqlment.setString(3,t.getResolution());
+				sqlment.setInt(4,t.getResolutionCode().getID());
+				sqlment.setInt(5,t.getID());
+				sqlment.executeUpdate(); 
 				update.close();
+				
+				ArrayList<TicketLogEntry> logs = t.getLogEntries();
+				if (logs != null){
+					for(int i=0;i<logs.size();i++){
+						//Update the ticketID reference in the TicketLogEntry object
+						// {This may not be necessary}
+						logs.get(i).setTicketID(t.getID());
+						//Send the TicketLogEntry object to be updated in the database
+						updateTicketLogEntry(logs.get(i));
+					}
+				}	
 			}
-			ArrayList<TicketLogEntry> logs = t.getLogEntries();
-			for(int i=0;i<logs.size();i++){
-				insertTicketLogEntry(logs.get(i));
-			}
-			
+
 		}catch(SQLException e){
 			success = false;
 			e.printStackTrace();
+		}catch(Exception e){
+			success = false;
 		}
 		return success;
 	}
 	
-	// getTicketsWithID returns a HashMap of the Ticket objects mapped to their IDs as Strings
-	public HashMap<String, Ticket> getTicketsWithID() {
+	/**
+	*	getTickets()
+	*	Used to get all the tickets from the tblTickets table  
+	*	
+	*	@return returns a HashMap of the Ticket objects associated with 
+	*		the records retrieved from the tblTickets table
+	*/	
+	public HashMap<String, Ticket> getTickets() {
 		HashMap<String, Ticket> recordSet = new HashMap<String, Ticket>();
 		Ticket record = null;
 		try{
@@ -152,12 +281,36 @@ public class Database {
 		return recordSet;
 	}
 	
-	public ArrayList<Ticket> getTickets(){
-		ArrayList<Ticket> recordSet = new ArrayList<Ticket>();
+	/**
+	*	getActiveTickets()
+	*	Used to get all the tickets that have StatusID values of 1,2, or 10. 
+	*	
+	*	@return returns a HashMap of the Ticket objects associated with the records retrieved from the tblTickets table
+	*/
+	public HashMap<String, Ticket> getActiveTickets(){
+		ArrayList<Integer> s = new ArrayList<Integer>(2);
+		s.add(1);
+		s.add(2);
+		s.add(10);
+		return getTicketsByStatus(s);		
+	}
+	
+	/**
+	*	getTicketsByStatus(ArrayList<Integer> sl)
+	*	@param sl is the ArrayList of status ids that correspond with thos tickets you want 
+	* 		to receive.
+	*	
+	*	@return returns a HashMap of the Ticket objects associated with the records retrieved from the tblTickets table
+	*/	
+	public HashMap<String, Ticket> getTicketsByStatus(ArrayList<Integer> sl){
+		String list = sl.toString();
+		list = list.replace("[","(");
+		list = list.replace("]",")");
+		HashMap<String, Ticket> recordSet = new HashMap<String, Ticket>();
 		Ticket record = null;
 		try{
 			Statement select = connect.createStatement();
-			String sql = "SELECT TicketID, TicketSummaryDesc, TicketStatusCodeID, TicketResolutionDesc, TicketResolutionCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime FROM tblTickets";
+			String sql = "SELECT TicketID, TicketSummaryDesc, TicketStatusCodeID, TicketResolutionDesc, TicketResolutionCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime FROM tblTickets WHERE TicketStatusCodeID IN "+list+"";
 			ResultSet results = select.executeQuery(sql);
 			while (results.next()){
 				int TicketID = results.getInt(1);
@@ -167,15 +320,13 @@ public class Database {
 				ResolutionCode TicketResolutionCodeID = getResolutionCodeByID(results.getInt(5));
 				User TicketCheckedOutByUserID = getUserByID(results.getInt(6));
 				Date TicketCheckedOutDateTime = results.getDate(7);
-				record = new Ticket(TicketID, 
-									TicketSummaryDesc, 
-									TicketResolutionDesc, 
-									TicketResolutionCodeID, 
-									TicketStatusCodeID, 
-									TicketCheckedOutByUserID, 
-									TicketCheckedOutDateTime);
-				record.setLogEntries(getTicketLogEntriesByTicket(record.getID()));
-				recordSet.add(record);
+				
+				// Convert the int TicketID to a String
+				// Note: not sure if the nested contstructor call will work
+				String ticketIDString = (new Integer(TicketID)).toString();
+				
+				record = new Ticket(TicketID, TicketSummaryDesc, TicketResolutionDesc, TicketResolutionCodeID, TicketStatusCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime);
+				recordSet.put(ticketIDString, record);
 			}
 			results.close();
 			select.close();
@@ -185,7 +336,12 @@ public class Database {
 		return recordSet;
 	}
 	
-	
+	/**
+	*	getTicketByID(int id)
+	*	@param id the ID of the ticket that you want to receive.
+	*	
+	*	@return returns the Ticket object associated with the record in the tblTickets table
+	*/	
 	public Ticket getTicketByID(int id){
 		Ticket record = null;
 		try{
@@ -218,67 +374,47 @@ public class Database {
 		return record;
 	}
 	
-	public ArrayList<Ticket> getTicketsByStatus(ArrayList<Integer> sc){
-		String list = sc.toString();
-		list = list.replace("[","(");
-		list = list.replace("]",")");
-		ArrayList<Ticket> recordSet = new ArrayList<Ticket>();
-		Ticket record = null;
-		try{
-			Statement select = connect.createStatement();
-			String sql = "SELECT TicketID, TicketSummaryDesc, TicketStatusCodeID, TicketResolutionDesc, TicketResolutionCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime FROM tblTickets WHERE TicketStatusCodeID IN "+list+"";
-			ResultSet results = select.executeQuery(sql);
-			while (results.next()){
-				int TicketID = results.getInt(1);
-				String TicketSummaryDesc= results.getString(2);
-				StatusCode TicketStatusCodeID = getStatusCodeByID(results.getInt(3));
-				String TicketResolutionDesc = results.getString(4);
-				ResolutionCode TicketResolutionCodeID = getResolutionCodeByID(results.getInt(5));
-				User TicketCheckedOutByUserID = getUserByID(results.getInt(6));
-				Date TicketCheckedOutDateTime = results.getDate(7);
-				record = new Ticket(TicketID, 
-									TicketSummaryDesc, 
-									TicketResolutionDesc, 
-									TicketResolutionCodeID, 
-									TicketStatusCodeID, 
-									TicketCheckedOutByUserID, 
-									TicketCheckedOutDateTime);
-				record.setLogEntries(getTicketLogEntriesByTicket(record.getID()));
-				recordSet.add(record);
-			}
-			results.close();
-			select.close();
-		}catch(SQLException e){
-			e.printStackTrace();
-		}
-		return recordSet;
-	}
-	
-	public boolean insertTicketLogEntry(TicketLogEntry t){
+	/**
+	*	updateTicketLogEntry(TicketLogEntry t)
+	*	@param t is the TicketLogEntry that is to be stored on the database.
+	*		If the id of the TicketLogEntry is 0 then a new record is inserted.
+	*		If the id is >0 then the record is updated. 
+	*		THIS ASSUMES THAT NO tickets in 
+	*		client memory are missing from the database.
+	*	
+	*	@return returns true if successfull, false if otherwise
+	*/			
+	public boolean updateTicketLogEntry(TicketLogEntry t){
 		boolean success = true;
 		try{
 			//Only insert ticket log entry if there is no ID, 
 			//means it hasn't been submitted to db
 			if (t.getID() == 0){
 				Statement insert = connect.createStatement();
-				String sql = "INSERT INTO tblTicketWorkLogs (TicketID, TicketWorkLogEntry, TicketWorkPerformedByUserID, TicketWorkLogEntryDateTime) VALUES("
-						+ "'" + t.getTicketID() + "', "
-						+ "'" + t.getEntry() + "', "
-						+ "'" + t.getPerformedBy().getID() + "', "
-						+ "#" + t.getPerformedDate() + "#"
-						+ ")";
-				insert.executeUpdate(sql);
+				String sql = "INSERT INTO tblTicketWorkLogs (TicketID, TicketWorkLogEntry, TicketWorkPerformedByUserID, TicketWorkLogEntryDateTime) VALUES(?, ?, ?, ?)";
+				PreparedStatement sqlment = connect.prepareStatement(sql);
+				sqlment.setInt(1,t.getTicketID());
+				sqlment.setString(2,t.getEntry());
+				sqlment.setInt(3,t.getPerformedBy().getID());
+				sqlment.setDate(4,new java.sql.Date(t.getPerformedDate().getTime()));
+				sqlment.executeUpdate(); 
 				insert.close();
 			//OR if there is an id value then update the ticket log entry
 			}else if (t.getID() >0){
 				Statement update = connect.createStatement();
 				String sql = "UPDATE tblTicketWorkLogs SET "
-						+ " TicketID = "+t.getTicketID()+""
-						+ ",TicketWorkLogEntry = '"+t.getEntry()+"'"
-						+ ",TicketWorkPerformedByUserID = "+t.getPerformedBy().getID()+""
-						+ ",TicketWorkLogEntryDateTime = #"+t.getPerformedDate()+"#"
-						+ " WHERE TicketWorkLogID = "+ t.getID();
-				update.executeUpdate(sql);
+						+ " TicketID = ? "
+						+ ",TicketWorkLogEntry = ? "
+						+ ",TicketWorkPerformedByUserID = ? "
+						+ ",TicketWorkLogEntryDateTime = ? "
+						+ " WHERE TicketWorkLogID = ? " ;
+				PreparedStatement sqlment = connect.prepareStatement(sql);
+				sqlment.setInt(1,t.getTicketID());
+				sqlment.setString(2,t.getEntry());
+				sqlment.setInt(3,t.getPerformedBy().getID());
+				sqlment.setDate(4,new java.sql.Date(t.getPerformedDate().getTime()));
+				sqlment.setInt(5,t.getID());
+				sqlment.executeUpdate(); 
 				update.close();
 			}
 		}catch(SQLException e){
@@ -288,16 +424,28 @@ public class Database {
 		return success;
 	}
 	
+	/**
+	*	getTicketLogEntriesByTicket(Ticket t)
+	*	@param t is the Ticket object reference of the log entries receieved
+	*	
+	*	@return returns an ArrayList of TicketLogEntry objects associated with 
+	*		the records in the tblTicketWorkLogs table in the database
+	*/	
 	public ArrayList<TicketLogEntry> getTicketLogEntriesByTicket(Ticket t){
 		return getTicketLogEntriesByTicket(t.getID());
 	}
-	
+	/**
+	*	getTicketLogEntriesByTicket(int i)
+	*	@param i is the ID of the ticket to which the log entries are referenced in the database.
+	*	
+	*	@return returns the TicketLogEntry object associated with the record in the tblTicketWorkLogs in the database
+	*/		
 	public ArrayList<TicketLogEntry> getTicketLogEntriesByTicket(int i){
 		ArrayList<TicketLogEntry> recordSet = new ArrayList<TicketLogEntry>();
 		TicketLogEntry record = null;
 		try{
 			Statement select = connect.createStatement();
-			String sql = "SELECT TicketWorkLogID, TicketID, TicketWorkLogEntry, TicketWorkPerformedByUserID, TicketWorkLogEntryDateTime FROM tblTicketWorkLog WHERE TicketID = "+i;
+			String sql = "SELECT TicketWorkLogID, TicketID, TicketWorkLogEntry, TicketWorkPerformedByUserID, TicketWorkLogEntryDateTime FROM tblTicketWorkLogs WHERE TicketID = "+i;
 			ResultSet results = select.executeQuery(sql);
 			while (results.next()){
 				int TicketWorkLogID = results.getInt(1);
@@ -318,11 +466,18 @@ public class Database {
 		}
 		return recordSet;
 	}
+	
+	/**
+	*	getTicketLogEntryByID(int id)
+	*	@param i is the ID of the ticket log entry as stored in the database.
+	*	
+	*	@return returns the TicketLogEntry object associated with the record in the tblTicketWorkLogs in the database
+	*/		
 	public TicketLogEntry getTicketLogEntryByID(int id){
 		TicketLogEntry record = null;
 		try{
 			Statement select = connect.createStatement();
-			String sql = "SELECT TicketWorkLogID, TicketID, TicketWorkLogEntry, TicketWorkPerformedByUserID, TicketWorkLogEntryDateTime FROM  tblTicketWorkLog WHERE TicketWorkLogID = " + id;
+			String sql = "SELECT TicketWorkLogID, TicketID, TicketWorkLogEntry, TicketWorkPerformedByUserID, TicketWorkLogEntryDateTime FROM  tblTicketWorkLogs WHERE TicketWorkLogID = " + id;
 			ResultSet results = select.executeQuery(sql);
 			while (results.next()){
 				int TicketWorkLogID = results.getInt(1);
@@ -344,7 +499,12 @@ public class Database {
 		return record;
 	}
 	
-	
+	/**
+	*	getUsers()
+	*	Returns the list of users as recorded in the database.
+	*
+	*	@return returns an ArrayList of User objects associated with the records from the tblUsers
+	*/			
 	public ArrayList<User> getUsers(){
 		ArrayList<User> recordSet = new ArrayList<User>();
 		User record = null;
@@ -368,6 +528,12 @@ public class Database {
 		return recordSet;
 	}
 	
+	/**
+	*	getUserByID(int id)
+	*	@param id is the id of the User as recorded in the database. 
+	*
+	*	@return returns the User object associated with the record from the tblUsers
+	*/		
 	public User getUserByID(int id){
 		User record = null;
 		try{
@@ -389,6 +555,13 @@ public class Database {
 		}
 		return record;
 	}
+	
+	/**
+	*	getUserByID(int id)
+	*	@param id is the id of the User as recorded in the database. 
+	*
+	*	@return returns the User object associated with the record from the tblUsers
+	*/		
 	public User getUserByLogon(String l){
 		User record = null;
 		try{
@@ -411,6 +584,11 @@ public class Database {
 		return record;
 	}
 	
+	/**
+	*	getUserRoles()
+	*
+	*	@return returns an ArrayList of the UserRole objects associated with the records from the tblUserRoles
+	*/			
 	public ArrayList<UserRole> getUserRoles(){
 		ArrayList<UserRole> recordSet = new ArrayList<UserRole>();
 		UserRole record = null;
@@ -433,6 +611,12 @@ public class Database {
 		return recordSet;
 	}
 	
+	/**
+	*	getUserRoleByID(int id)
+	*	@param id is the id of the UserRole as recorded in the database. 
+	*
+	*	@return returns the UserRole object associated with the record from the tblUserRoles
+	*/		
 	public UserRole getUserRoleByID(int id){
 		UserRole record = null;
 		try{
@@ -454,7 +638,11 @@ public class Database {
 		return record;
 	}
 	
-
+	/**
+	*	getResolutionCodes()
+	*
+	*	@return returns an ArrayList of the ResolutionCode objects associated with the records from the tblResolutionCodes
+	*/		
 	public ArrayList<ResolutionCode> getResolutionCodes(){
 		ArrayList<ResolutionCode> recordSet = new ArrayList<ResolutionCode>();
 		ResolutionCode record = null;
@@ -476,6 +664,13 @@ public class Database {
 		}
 		return recordSet;
 	}
+	
+	/**
+	*	getResolutionCodeByID(int id)
+	*	@param id is the id of the ResolutionCode as recorded in the database. 
+	*
+	*	@return returns the ResolutionCode object associated with the record from the tblResolutionCodes
+	*/
 	public ResolutionCode getResolutionCodeByID(int id){
 		ResolutionCode record = null;
 		try{
@@ -496,7 +691,11 @@ public class Database {
 		}
 		return record;
 	}
-	
+	/**
+	*	getStatusCodes()
+	*
+	*	@return returns an ArrayList of the StatusCode objects associated with the records from the tblStatusCodes
+	*/			
 	public ArrayList<StatusCode> getStatusCodes(){
 		ArrayList<StatusCode> recordSet = new ArrayList<StatusCode>();
 		StatusCode record = null;
@@ -518,6 +717,13 @@ public class Database {
 		}
 		return recordSet;
 	}	
+	
+	/**
+	*	getStatusCodeByID(int id)
+	*	@param id is the id of the StatusCode as recorded in the database. 
+	*
+	*	@return returns the StatusCode object associated with the record from the tblStatusCodes
+	*/
 	public StatusCode getStatusCodeByID(int id){
 		StatusCode record = null;
 		try{

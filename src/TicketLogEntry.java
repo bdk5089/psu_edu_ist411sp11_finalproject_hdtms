@@ -1,7 +1,6 @@
 import java.util.*;
 
-/** The User class used to store user information and send user information between
-*	a client and a server and vice versa 
+/** The TicketLogEntry class used to store log entry information 
 *	@author Bruce Kennedy
 *	@version 1.0
 */
@@ -44,7 +43,7 @@ public class TicketLogEntry implements java.io.Serializable{
 	
 	/**
 	*	getID ()
-	*	returns log ID value
+	*   @return returns log ID value
 	*/	
 	public int getID(){
 		return id;
@@ -58,35 +57,42 @@ public class TicketLogEntry implements java.io.Serializable{
 	}
 	/**
 	*	getTicketID ()
-	*	returns ticket ID value
+	*   @return returns ticket ID value
 	*/	
 	public int getTicketID(){
 		return ticketID;
 	}
 	/**
+	*	setTicketID ()
+	*   @return returns ticket ID value
+	*/	
+	public void setTicketID(int i){
+		ticketID = i;
+	}
+	/**
 	*	getEntry ()
-	*	returns the entry
+	*   @return returns the entry
 	*/
 	public String getEntry(){
 		return logEntry;
 	}
 	/**
 	*	getPerformedBy ()
-	*	returns the user who performed work
+	*   @return returns the user who performed work
 	*/
 	public User getPerformedBy(){
 		return performedBy;
 	}	
 	/**
 	*	getPerformedDate ()
-	*	returns the date of the work performed
+	*   @return returns the date of the work performed
 	*/
 	public Date getPerformedDate(){
 		return performedDate;
 	}	
 	/**
 	*	toString ()
-	*	returns a string representation of the object  
+	*   @return returns a string representation of the object  
 	*/	
 	public String toString(){
 		return "["+performedDate+"] "+logEntry+"";

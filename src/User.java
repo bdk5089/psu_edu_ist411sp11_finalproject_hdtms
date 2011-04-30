@@ -44,43 +44,43 @@ public class User implements java.io.Serializable{
 	}
 	/**
 	*	getID ()
-	*	returns the user's UUID value
+	*   @return returns the user's UUID value
 	*/	
 	public int getID(){
 		return id;
 	}
 	/**
 	*	getName ()
-	*	returns the user's name
+	*   @return returns the user's name
 	*/
 	public String getName(){
 		return name;
 	}
 	/**
 	*	getLogon ()
-	*	returns the user's logon
+	*   @return returns the user's logon
 	*/
 	public String getLogon(){
 		return logon;
 	}	
 	/**
 	*	getPassword ()
-	*	returns the user's password
+	*   @return returns the user's password
 	*/
 	public String getPassword(){
 		return password;
 	}
 	/**
 	*	getRole ()
-	*	returns the user's role
+	*   @return returns the user's role
 	*/
 	public UserRole getRole(){
 		return role;
 	}
 	/**
 	*	toString ()
-	*	returns a string representation of the user with both name and id.  
-	*	Displays in a JList.
+	*   @return returns a string representation of the user with both name and id.  
+	*		Displays in a JList.
 	*/	
 	public String toString(){
 		return ""+name+" ["+logon+"]";

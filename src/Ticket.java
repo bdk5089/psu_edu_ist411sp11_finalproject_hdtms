@@ -15,7 +15,8 @@ public class Ticket implements java.io.Serializable{
 	private StatusCode statusCode;
 	private User checkedOutBy;
 	private Date checkedOutDate;
-	private ArrayList<TicketLogEntry> logEntries;
+	private ArrayList<TicketLogEntry> logEntries = new ArrayList<TicketLogEntry>();
+	
 	/**
 	*	Ticket(int i, String d, String r, ResolutionCode rc, StatusCode sc, User cb, Date cbd)
 	*	@param i is the Ticket id (0 if not stored/retrieved from database);
@@ -53,70 +54,90 @@ public class Ticket implements java.io.Serializable{
 		checkedOutBy = cb;
 		checkedOutDate = cbd;
 	}
+	
 	/**
 	*	getID ()
-	*	returns the ticket ID value
+	*   @return returns the ticket ID value
 	*/	
 	public int getID(){
 		return id;
 	}
+	
 	/**
 	*	getDesc ()
-	*	returns the ticket summary description
+	*   @return returns the ticket summary description
 	*/
 	public String getDesc(){
 		return desc;
 	}
+	
 	/**
 	*	getStatus ()
-	*	returns the status code object
+	*   @return returns the status code object
 	*/
 	public StatusCode getStatusCode(){
 		return statusCode;
 	}
+	
 	/**
 	*	getResolution ()
-	*	returns the resolution
+	*   @return returns the resolution
 	*/
 	public String getResolution(){
 		return res;
 	}
 	/**
 	*	getResolutionCode ()
-	*	returns the resolutionCode
+	*   @return returns the resolutionCode
 	*/
 	public ResolutionCode getResolutionCode(){
 		return resCode;
 	}
 	/**
 	*	getCheckedOutBy ()
-	*	returns the user who performed work
+	*   @return returns the user who performed work
 	*/
 	public User getCheckedOutBy(){
 		return checkedOutBy;
 	}	
 	/**
 	*	getCheckedOutDate ()
-	*	returns the date of the work performed
+	*   @return returns the date of the work performed
 	*/
 	public Date getCheckedOutDate(){
 		return checkedOutDate;
 	}	
+	
 	/**
 	*	toString ()
-	*	returns a string representation of the object  
+	*   @return returns a string representation of the object  
 	*/	
 	public String toString(){
 		return ""+desc+" ["+getStatusCode()+"]";
 	}
 	
+	/**
+	*	getLogEntries ()
+	*   @return returns an ArrayList of associated TicketLogEntry objects.
+	*/		
 	public ArrayList<TicketLogEntry> getLogEntries(){
 		return logEntries;
 	}
+	
+	/**
+	*	setLogEntries(ArrayList<TicketLogEntry> c)
+	*   @param c an ArrayList of associated TicketLogEntry objects.
+	*/		
 	public void setLogEntries(ArrayList<TicketLogEntry> c){
 		logEntries = c;
 	}
 	
+	/**
+	*	addLogEntry(TicketLogEntry l)
+	*   @param l is a TicketLogEntry that will be added to the logEntries.
+	*	
+	*	@return returns true if successful, false if otherwise.
+	*/			
 	public boolean addLogEntry(TicketLogEntry l){
 		try{
 			logEntries.add(l);

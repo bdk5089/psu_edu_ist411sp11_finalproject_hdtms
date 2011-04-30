@@ -19,7 +19,11 @@ public interface TicketServer extends Remote {
 	
 	public boolean logoff(String username) throws RemoteException;
 	
-	public boolean updateTicket(String username, Ticket ticket) throws RemoteException;
+	public boolean checkOutTicket(String username, int id) throws RemoteException;
+	public boolean checkOutTicket(String username, Ticket t) throws RemoteException;
+	
+	public boolean checkInTicket(Ticket ticket) throws RemoteException;
+	public boolean checkInTicket(Ticket ticket, boolean flag) throws RemoteException;
 	
 	public HashMap<String, Ticket> getActiveTickets() throws RemoteException;
 

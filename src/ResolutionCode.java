@@ -23,28 +23,28 @@ public class ResolutionCode implements java.io.Serializable{
 	}
 	/**
 	*	getID ()
-	*	returns the user's UUID value
+	*   @return returns the user's UUID value
 	*/	
 	public int getID(){
 		return id;
 	}
 	/**
 	*	getName ()
-	*	returns the name
+	*   @return returns the name
 	*/
 	public String getName(){
 		return name;
 	}
 	/**
 	*	getLogon ()
-	*	returns the description
+	*   @return returns the description
 	*/
 	public String getDesc(){
 		return desc;
 	}	
 	/**
 	*	toString ()
-	*	returns a string representation of the object  
+	*   @return returns a string representation of the object  
 	*/	
 	public String toString(){
 		return ""+name+" ["+desc+"]";
