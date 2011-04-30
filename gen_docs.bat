@@ -1,5 +1,5 @@
 @echo off
-set output="./docs"
+set output="./javadocs"
 set src="./src"
 javadoc -author -version -d %output% -classpath %src% ./src/*
 
