@@ -25,8 +25,9 @@ public class ClientTicketDialog extends JDialog {
 	private JTextArea summaryDescriptionTextArea;
 	private JTextArea resolutionDescriptionTextArea;
 	
-	private JTextField statusCodeTextField;
-	private JTextField resolutionCodeTextField;
+	// TODO code for radio buttons for the status code and resolution codes
+//	private JTextField statusCodeTextField;
+//	private JTextField resolutionCodeTextField;
 	
 	private JButton submitButton;
 	
@@ -94,7 +95,7 @@ public class ClientTicketDialog extends JDialog {
 		
 		// Make a ClientUpdateTicketHandler ActionListener and register the submit button
 		// This class handles looking up the appropriate ticket, updating it and sending to the server
-		clientUpdateTicketHandler = new ClientUpdateTicketHandler(clientUsername, ticketID, activeTickets);
+		clientUpdateTicketHandler = new ClientUpdateTicketHandler(clientUsername, ticketID, activeTickets, this);
 		submitButton.addActionListener(clientUpdateTicketHandler);
 	}
 	
@@ -104,5 +105,13 @@ public class ClientTicketDialog extends JDialog {
 	
 	public String getTicketID() {
 		return ticketID;
+	}
+	
+	public String getSummaryDescriptionField() {
+		return summaryDescriptionTextArea.getText();
+	}
+	
+	public String getResolutionDescriptionField() {
+		return resolutionDescriptionTextArea.getText();
 	}
 }

@@ -1,34 +1,32 @@
-//TODO code this class
-// This class handles updating a ticket on the Client by taking the old ticket reference and replacing it
-// with a new ticket reference in the Client's activeTickets ArrayList
-
-// This handler will be called from the ClientTicketDialog
-// The ClientTicketDialog will require ArrayList of active tickets
-
 /*
-	Listener class that handles sending messages from the client, via the InstantMessageDialog class
-	to the server.
+	Filename: ClientUpdateTicketHandler.java
+	Classname: ClientUpdateTicketHandler
+	Comments: Handler that updates the ticket information.
 */
 
-
-clientUpdateTicketHandler = new ClientUpdateTicketHandler(clientUsername, ticketID, activeTickets);
+/** The ClientUpdateTicketHandler updates ticket information when Submit button is pressed on the
+*	ClientTicketDialog object.
+*	@author Eric So, Bruce Kennedy
+*	@version 1.0
+*/
 
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+
 
 public class ClientUpdateTicketHandler implements ActionListener {
 	
 	private String clientUsername;
 	private String ticketID;
 	private HashMap<String, Ticket> activeTickets;
+	private ClientTicketDialog clientTicketDialog;
 	
-	
-	public ClientUpdateTicketHandler(clientUsername, ticketID, activeTickets) {
-
+	public ClientUpdateTicketHandler(String clientUsername, String ticketID, HashMap<String, Ticket> activeTickets, ClientTicketDialog clientTicketDialog) {
 		this.clientUsername = clientUsername;
 		this.ticketID = ticketID;
 		this.activeTickets = activeTickets;
+		this.clientTicketDialog = clientTicketDialog;
 	}
 	
 	public void actionPerformed(ActionEvent evt) {
@@ -44,9 +42,8 @@ public class ClientUpdateTicketHandler implements ActionListener {
 			
 			// Recover ticket and update it
 			Ticket ticketToUpdate = (Ticket) activeTickets.get(ticketID);
-			
-			ticketToUpdate
-			
+			ticketToUpdate.setDesc(clientTicketDialog.getSummaryDescriptionField());
+			ticketToUpdate.setResolution(clientTicketDialog.getResolutionDescriptionField());
 		}
 	}
 }
