@@ -17,9 +17,9 @@ program files:
 
 <bat note = "These commands are contained in the compile.bat file">
 
-	set bin="./bin"
-	set src="./src"
-	javac -Xlint -d %bin% -classpath %src% src/*.java
+set bin="./bin"
+set src="./src"
+javac -d %bin% -classpath %src% src/*.java
 	
 </bat>
 
@@ -28,7 +28,7 @@ program files:
 ***************************/
 
 To setup the database, use the following directions:
-
+<FOR WINDOWS>
 Step 1:  Define the database in the local windows machine’s ODBC connection 
          manager by clicking the Add.... button located on the System DSN tab.  
          In the Create New Data Source window, scroll down until you find the 
@@ -55,14 +55,37 @@ Step 4:  Make sure that you use this datasource name as a command-line argument 
 
 The Server is launched from the command line using the following code (where 
 ist411sp11_finalproject represents the ODBC datasource name that 
-is setup on the computer where the Server is running):
+is setup on the computer where the Server is running).  
 
+Because the rmiregistery is executed from the root directory, the 
+CLASSPATH must be changed to reflect where the Server class is located.
+
+OPTION 1:
 <bat note = "These commands are included in a .bat file called launch_server.bat">
 
-	set bin="./bin"
-	java -classpath %bin% Database ist411sp11_finalproject
+set bin=./bin
+set CLASSPATH=%bin%/%CLASSPATH%
+echo CLASSPATH=%CLASSPATH%
+start rmiregistry
+
+java -classpath %bin% Server ist411sp11_finalproject
 	
 </bat>
+
+Another option would be to change the directory to the bin directory, launch rmiregistry
+and then change the directory back before running the java command:
+
+OPTION 2:
+<bat>
+
+set bin=./bin
+cd %bin%
+start rmiregistry
+cd ..
+java -classpath %bin% Server ist411sp11_finalproject
+	
+</bat>
+
 
 /**************************
 ** Compiling The Client  **
@@ -71,12 +94,13 @@ is setup on the computer where the Server is running):
 The IP address of the computer where the Server program is running must be 
 the command-line argument for the Client program.  The Client is launched 
 from the command line using the following code (where 192.168.0.3 represents 
-the IP address of the Server program):
+the IP address of the Server program, you can also use localhost if the 
+server and the client are running on the same computer):
 
-<bat note = "These commands are included in a .bat file called launch_client.bat">
+<bat note = "These commands are included in a .bat file called launch_client_bdk5089.bat">
 
-	set bin="./bin"
-	java -classpath %bin% Client 192.168.0.3
+set bin=./bin
+java -classpath %bin% Client 192.168.0.3 bdk5089
 	
 </bat>
 
