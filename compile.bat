@@ -3,6 +3,6 @@
 set bin="./bin"
 set src="./src"
 
-javac -Xlint -d %bin% -classpath %src% src/Server.java
+javac -d %bin% -classpath %src% src/*.java
 
 pause

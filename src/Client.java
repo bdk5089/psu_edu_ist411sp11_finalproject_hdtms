@@ -16,6 +16,7 @@ import java.rmi.RemoteException;
 import java.util.*;
 import java.awt.*;
 import javax.swing.*;
+import java.net.*;
 
 
 public class Client {
@@ -28,7 +29,7 @@ public class Client {
 	*/
 	public static void main(String[] args) {
 		// Create the Client
-		Client client = new Client(args[0]);
+		Client client = new Client(args[0], args[1]);
 	}
 	
 
@@ -38,24 +39,29 @@ public class Client {
 	static TicketServer ticketServerObject = null;
 	
 	
-	public Client(String username) {
+	public Client(String IPAddress, String username) {
 		System.out.println("*************************************************");
-		System.out.println("**** Help Desk Ticket Manager Client Started ****");
-		System.out.println("*************************************************");
+		System.out.println(" Help Desk Ticket Manager Client Started");
+		
 		
 		this.username = username;
 		
 		try {
 			// Get the RMI object
-			ticketServerObject = (TicketServer) Naming.lookup("//" + "localhost" + "/TicketServer");
+			if (IPAddress.toLowerCase().equals("localhost")){
+				IPAddress = InetAddress.getLocalHost().getHostAddress();
+			}
+			System.out.println("   Connecting To Server: "+IPAddress);
+			ticketServerObject = (TicketServer) Naming.lookup("//" + IPAddress + "/TicketServer");
 			
 			// Logon to the server
 			boolean loggedOn = false;
+			System.out.println("   Logging On: "+this.username);
 			loggedOn = ticketServerObject.logon(this.username);
 			
 			// Check to see if the user was able to log on. If not, exit.
 			if (!loggedOn) {
-				System.out.println("Error: Username " + this.username + " not in database.");
+				System.out.println("   Error: Username " + this.username + " not in database.");
 				System.exit(-1);
 			}
 			
@@ -68,9 +74,10 @@ public class Client {
 			this.activeTicketsFrame.setVisible(true);	
 		} catch (Exception e) {
 			// Exception handling code
-			System.out.println("Error: An exception has occured.");
-			System.out.println("Exception message: " + e.getMessage());
+			System.out.println("  Error Message: " + e.getMessage());
+			e.printStackTrace();
 		}
 		
+		System.out.println("*************************************************");
 	}
 }

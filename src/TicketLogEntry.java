@@ -1,4 +1,6 @@
 import java.util.*;
+import java.sql.Timestamp;
+import java.text.DateFormat;
 
 /** The TicketLogEntry class used to store log entry information 
 *	@author Bruce Kennedy
@@ -10,16 +12,16 @@ public class TicketLogEntry implements java.io.Serializable{
 	private int ticketID;
 	private String logEntry;
 	private User performedBy;
-	private Date performedDate;
+	private Timestamp performedDate;
 	/**
-	*	TicketLogEntry(int i, int r, String l, User u, Date d)
+	*	TicketLogEntry(int i, int r, String l, User u, Timestamp d)
 	*	@param i is the log entry id (assigned by database, 0 if not yet submitted to database);
 	*	@param r is the ticket id reference;
 	*	@param l is the log engry text;
 	*	@param u is the User that made the log entry;
-	*	@param d is the date the log entry was created;
+	*	@param d is the date/time the log entry was created;
 	*/	
-	public TicketLogEntry(int i, int r, String l, User u, Date d){
+	public TicketLogEntry(int i, int r, String l, User u, Timestamp d){
 		id = i;
 		ticketID = r;
 		logEntry = l;
@@ -27,13 +29,13 @@ public class TicketLogEntry implements java.io.Serializable{
 		performedDate = d;
 	}
 	/**
-	*	TicketLogEntry(int r, String l, User u, Date d)
+	*	TicketLogEntry(int r, String l, User u, Timestamp d)
 	*	@param r is the ticket id reference;
 	*	@param l is the log engry text;
 	*	@param u is the User that made the log entry;
-	*	@param d is the date the log entry was created;
+	*	@param d is the date/time the log entry was created;
 	*/		
-	public TicketLogEntry(int r, String l, User u, Date d){
+	public TicketLogEntry(int r, String l, User u, Timestamp d){
 		id = 0;
 		ticketID = r;
 		logEntry = l;
@@ -87,7 +89,7 @@ public class TicketLogEntry implements java.io.Serializable{
 	*	getPerformedDate ()
 	*   @return returns the date of the work performed
 	*/
-	public Date getPerformedDate(){
+	public Timestamp getPerformedDate(){
 		return performedDate;
 	}	
 	/**
@@ -95,6 +97,7 @@ public class TicketLogEntry implements java.io.Serializable{
 	*   @return returns a string representation of the object  
 	*/	
 	public String toString(){
-		return "["+performedDate+"] "+logEntry+"";
+		DateFormat df = DateFormat.getDateTimeInstance();
+		return "["+df.format(performedDate)+"] "+logEntry+"";
 	}
 }

@@ -9,8 +9,10 @@
 *	@version 1.0
 */
 
-import java.rmi.Remote;
+import java.rmi.Remote; 
 import java.rmi.RemoteException; 
+import java.net.*;
+import java.io.*;
 import java.util.*;
 
 public interface TicketServer extends Remote {

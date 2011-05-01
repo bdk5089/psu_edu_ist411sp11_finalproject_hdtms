@@ -11,6 +11,7 @@
 
 import java.util.*;
 import java.util.Date;
+import java.sql.Timestamp;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -56,8 +57,8 @@ public class Database {
 		System.out.println("User : "+user);
 		
 		System.out.println("**** CREATE A TICKET              ****");
-		Ticket t = new Ticket("New Test Ticket", "", d.getResolutionCodes().get(0), d.getStatusCodes().get(0), user, new Date());
-		TicketLogEntry te = new TicketLogEntry(t.getID(), "Work performed goes here", user, new Date());
+		Ticket t = new Ticket("New Test Ticket", "", d.getResolutionCodes().get(0), d.getStatusCodes().get(0), user, new Timestamp(new Date().getTime()));
+		TicketLogEntry te = new TicketLogEntry(t.getID(), "Work performed goes here", user, new Timestamp(new Date().getTime()));
 		t.addLogEntry(te);
 		boolean succ = d.updateTicket(t);
 		System.out.println("**** CREATED TICKET [success = "+succ +"]");
@@ -90,6 +91,7 @@ public class Database {
 		try{
 			String url = "jdbc:odbc:"+s;
 			Class.forName("sun.jdbc.odbc.JdbcOdbcDriver");
+			System.out.println("   Database Connection: "+url);
 			connect = DriverManager.getConnection(url);
 		}catch(Exception e){
 			e.printStackTrace();
@@ -144,7 +146,7 @@ public class Database {
 					+ " WHERE TicketID = ?" ;
 			PreparedStatement sqlment = connect.prepareStatement(sql);
 			sqlment.setInt(1,u.getID());
-			sqlment.setDate(2,new java.sql.Date(new Date().getTime()));
+			sqlment.setTimestamp(2,new Timestamp(new Date().getTime()));
 			sqlment.setInt(3,id);
 			sqlment.executeUpdate(); 
 			update.close();
@@ -181,7 +183,7 @@ public class Database {
 					sqlment.setString(3,t.getResolution());
 					sqlment.setInt(4,t.getResolutionCode().getID());
 					sqlment.setInt(5,t.getCheckedOutBy().getID());
-					sqlment.setDate(6,new java.sql.Date(t.getCheckedOutDate().getTime()));
+					sqlment.setTimestamp(6,t.getCheckedOutDate());
 					sqlment.executeUpdate(); 	
 					insert.close();
 					//Get newly created TicketID value
@@ -264,13 +266,15 @@ public class Database {
 				String TicketResolutionDesc = results.getString(4);
 				ResolutionCode TicketResolutionCodeID = getResolutionCodeByID(results.getInt(5));
 				User TicketCheckedOutByUserID = getUserByID(results.getInt(6));
-				Date TicketCheckedOutDateTime = results.getDate(7);
+				Timestamp TicketCheckedOutDateTime = results.getTimestamp(7);
 				
 				// Convert the int TicketID to a String
 				// Note: not sure if the nested contstructor call will work
 				String ticketIDString = (new Integer(TicketID)).toString();
 				
 				record = new Ticket(TicketID, TicketSummaryDesc, TicketResolutionDesc, TicketResolutionCodeID, TicketStatusCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime);
+				record.setLogEntries(getTicketLogEntriesByTicket(TicketID));
+				
 				recordSet.put(ticketIDString, record);
 			}
 			results.close();
@@ -288,7 +292,7 @@ public class Database {
 	*	@return returns a HashMap of the Ticket objects associated with the records retrieved from the tblTickets table
 	*/
 	public HashMap<String, Ticket> getActiveTickets(){
-		ArrayList<Integer> s = new ArrayList<Integer>(2);
+		ArrayList<Integer> s = new ArrayList<Integer>(3);
 		s.add(1);
 		s.add(2);
 		s.add(10);
@@ -319,13 +323,15 @@ public class Database {
 				String TicketResolutionDesc = results.getString(4);
 				ResolutionCode TicketResolutionCodeID = getResolutionCodeByID(results.getInt(5));
 				User TicketCheckedOutByUserID = getUserByID(results.getInt(6));
-				Date TicketCheckedOutDateTime = results.getDate(7);
+				Timestamp TicketCheckedOutDateTime = results.getTimestamp(7);
 				
 				// Convert the int TicketID to a String
 				// Note: not sure if the nested contstructor call will work
 				String ticketIDString = (new Integer(TicketID)).toString();
 				
 				record = new Ticket(TicketID, TicketSummaryDesc, TicketResolutionDesc, TicketResolutionCodeID, TicketStatusCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime);
+				record.setLogEntries(getTicketLogEntriesByTicket(TicketID));
+				
 				recordSet.put(ticketIDString, record);
 			}
 			results.close();
@@ -355,7 +361,7 @@ public class Database {
 				String TicketResolutionDesc = results.getString(4);
 				ResolutionCode TicketResolutionCodeID = getResolutionCodeByID(results.getInt(5));
 				User TicketCheckedOutByUserID = getUserByID(results.getInt(6));
-				Date TicketCheckedOutDateTime = results.getDate(7);
+				Timestamp TicketCheckedOutDateTime = results.getTimestamp(7);
 				record = new Ticket(TicketID, 
 									TicketSummaryDesc, 
 									TicketResolutionDesc, 
@@ -363,7 +369,7 @@ public class Database {
 									TicketStatusCodeID, 
 									TicketCheckedOutByUserID, 
 									TicketCheckedOutDateTime);
-				record.setLogEntries(getTicketLogEntriesByTicket(record.getID()));
+				record.setLogEntries(getTicketLogEntriesByTicket(TicketID));
 				break;
 			}
 			results.close();
@@ -396,7 +402,7 @@ public class Database {
 				sqlment.setInt(1,t.getTicketID());
 				sqlment.setString(2,t.getEntry());
 				sqlment.setInt(3,t.getPerformedBy().getID());
-				sqlment.setDate(4,new java.sql.Date(t.getPerformedDate().getTime()));
+				sqlment.setTimestamp(4,t.getPerformedDate());
 				sqlment.executeUpdate(); 
 				insert.close();
 			//OR if there is an id value then update the ticket log entry
@@ -412,7 +418,7 @@ public class Database {
 				sqlment.setInt(1,t.getTicketID());
 				sqlment.setString(2,t.getEntry());
 				sqlment.setInt(3,t.getPerformedBy().getID());
-				sqlment.setDate(4,new java.sql.Date(t.getPerformedDate().getTime()));
+				sqlment.setTimestamp(4,t.getPerformedDate());
 				sqlment.setInt(5,t.getID());
 				sqlment.executeUpdate(); 
 				update.close();
@@ -452,7 +458,7 @@ public class Database {
 				int TicketID = results.getInt(2);
 				String TicketWorkLogEntry = results.getString(3);
 				User TicketWorkPerformedByUserID = getUserByID(results.getInt(4));
-				Date TicketWorkLogEntryDateTime = results.getDate(5);
+				Timestamp TicketWorkLogEntryDateTime = results.getTimestamp(5);
 				record = new TicketLogEntry(TicketWorkLogID, 
 											TicketWorkLogEntry, 
 											TicketWorkPerformedByUserID, 
@@ -484,7 +490,7 @@ public class Database {
 				int TicketID = results.getInt(2);
 				String TicketWorkLogEntry = results.getString(3);
 				User TicketWorkPerformedByUserID = getUserByID(results.getInt(4));
-				Date TicketWorkLogEntryDateTime = results.getDate(5);
+				Timestamp TicketWorkLogEntryDateTime = results.getTimestamp(5);
 				record = new TicketLogEntry(TicketWorkLogID, 
 											TicketWorkLogEntry, 
 											TicketWorkPerformedByUserID, 

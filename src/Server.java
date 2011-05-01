@@ -10,11 +10,15 @@
 *	@version 1.0
 */
 
-import java.rmi.Naming;
-import java.rmi.RemoteException;
-import java.rmi.RMISecurityManager;
-import java.rmi.server.UnicastRemoteObject;
+import java.net.*;
+import java.io.*;
 import java.util.*;
+
+/** Import RMI classes **/
+import java.rmi.Naming; 
+import java.rmi.RemoteException; 
+import java.rmi.RMISecurityManager; 
+import java.rmi.server.UnicastRemoteObject; 
 
 public class Server extends UnicastRemoteObject implements TicketServer {
 
@@ -29,14 +33,8 @@ public class Server extends UnicastRemoteObject implements TicketServer {
 		
 		try {
 			// Try to create a Server object
-			Server server = new Server(args[0]);
-			
-			// Bind server to the name "TicketServer"
-			Naming.rebind("TicketServer", server);
-			System.out.println("TicketServer is bound in registry");
-			
-			// TODO security manager?
-			
+			String ODBCString = args[0];
+			Server server = new Server(ODBCString);		
 		} catch (Exception e) {
 			System.out.println("Server error: " + e.getMessage());
             e.printStackTrace();
@@ -52,25 +50,43 @@ public class Server extends UnicastRemoteObject implements TicketServer {
 	*	@param ODBCString is a reference to an ODBC connection in the local machine
 	*		ODBC manager.
 	*/	
-	public Server(String ODBCString) throws RemoteException {
+	public Server(String ODBCString) throws IOException, RemoteException {
 		super();
-		
+		// Bind server to the name "TicketServer"
 		System.out.println("*************************************************");
-		System.out.println("**** Help Desk Ticket Manager Server Started ****");
-		System.out.println("*************************************************");
+		System.out.println(" Help Desk Ticket Manager Server Started");
+		System.out.println("   Server Started on IP Address: "+InetAddress.getLocalHost().getHostAddress());
 		
+		String serverBinding = "TicketServer";
+		try { 
+			// Bind this object instance to the serverBinding. 
+			Naming.rebind(serverBinding, this); 
+			System.out.println("   Server Bound in Registry: "+serverBinding); 
+        }catch (Exception e) { 
+			System.out.println("   Server Error ["+serverBinding+"]: " + e.getMessage()); 
+            e.printStackTrace(); 
+        } 
 		// CONNECT to database
-		Database db = new Database(ODBCString);
-			
+		db = new Database(ODBCString);
+		
+		System.out.println("*************************************************");
+		
+        System.out.println(" ");		
+		System.out.println("**** GETTING ACTIVE TICKETS       ****");
 		this.clientsLoggedOn = new ArrayList<String>();
-		
-		// TODO probably makes better sense to recover these from the Database class
-		// Or we could write a method to manually add each to the ArrayList
-		this.activeTickets = new HashMap<String, Ticket>();
-		
-		// Get the active tickets from the database
-		activeTickets = getActiveTickets();
-		
+		this.activeTickets = getActiveTickets();		
+		//Display Active Tickets
+		Iterator hashIterator = this.activeTickets.keySet().iterator();
+        while(hashIterator.hasNext()) {
+			Object hashIndex = hashIterator.next();
+			Ticket ticket = this.activeTickets.get(hashIndex);
+				System.out.println("Ticket :" +ticket.toString());
+			ArrayList<TicketLogEntry> logs = ticket.getLogEntries();
+			for (int j=0;j<logs.size();j++){
+				System.out.println("   Log : "+logs.get(j));
+			}			
+        }
+
 	}
 	
 	/**
@@ -139,7 +155,8 @@ public class Server extends UnicastRemoteObject implements TicketServer {
 	*	@return returns a boolean indicating successfull ticket update (true = success)
 	*/		
 	public boolean checkInTicket(Ticket t) throws RemoteException{
-		return checkInTicket(t, true);
+		boolean success = checkInTicket(t, true);
+		return success;
 	}
 	
 	/**
@@ -193,7 +210,8 @@ public class Server extends UnicastRemoteObject implements TicketServer {
 	*	@return returns a boolean indicating successfull ticket checkin (true = success)
 	*/		
 	public boolean checkOutTicket(String username, Ticket t) throws RemoteException{
-		return checkOutTicket(username, t.getID());
+		boolean success = checkOutTicket(username, t.getID());
+		return success;
 	}
 
 	/**
@@ -201,12 +219,8 @@ public class Server extends UnicastRemoteObject implements TicketServer {
 	*	@return returns a HashMap of all the active tickets int he database.
 	*/	
 	public HashMap<String, Ticket> getActiveTickets() throws RemoteException {
-		ArrayList<Integer> s = new ArrayList<Integer>(2);
-		s.add(1);
-		s.add(2);
-		s.add(10);
-		HashMap<String, Ticket> activeTickets = db.getTicketsByStatus(s);
-		return activeTickets;
+		HashMap<String, Ticket> rs = db.getActiveTickets();
+		return rs;
 	}
 	
 	/**
@@ -214,7 +228,8 @@ public class Server extends UnicastRemoteObject implements TicketServer {
 	*	@return returns a ArrayList of all the status codes.
 	*/	
 	public ArrayList<StatusCode> getStatusCodes() throws RemoteException {
-		return db.getStatusCodes();
+		ArrayList<StatusCode> rs = db.getStatusCodes();
+		return rs;
 	}
 
 	/**
@@ -222,6 +237,7 @@ public class Server extends UnicastRemoteObject implements TicketServer {
 	*	@return returns a ArrayList of all the resolution codes.
 	*/	
 	public ArrayList<ResolutionCode> getResolutionCodes() throws RemoteException {
-		return db.getResolutionCodes();
+		ArrayList<ResolutionCode> rs = db.getResolutionCodes();
+		return rs;
 	}
 }
