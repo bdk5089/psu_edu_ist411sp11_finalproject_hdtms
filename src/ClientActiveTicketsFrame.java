@@ -21,17 +21,15 @@ public class ClientActiveTicketsFrame extends JFrame {
 	private HashMap<String, Ticket> activeTickets;
 	private JList activeTicketsToDisplay;
 	
-	public InstantMessageFrame(String clientUsername, HashMap<String, Ticket> activeTickets) {
+	public ClientActiveTicketsFrame(String clientUsername, HashMap<String, Ticket> activeTickets) {
 		super("Active Tickets");
 		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		
 		this.clientUsername = clientUsername;
 		this.activeTickets = activeTickets;
 		
-		// Create Array of int objects with the ticket IDs of the active tickets
-		int[] ticketIdArray = activeTickets.keySet().toArray();
-		
-		this.activeTicketsToDisplay = new JList(ticketIdArray);
+		// Get the Ticket IDs using keySet(), convert to array and display		
+		this.activeTicketsToDisplay = new JList(activeTickets.keySet().toArray());
 		
 		// Setup the InstantMessageFrame
 		Container clientActiveTicketsFrameContentPane = this.getContentPane();

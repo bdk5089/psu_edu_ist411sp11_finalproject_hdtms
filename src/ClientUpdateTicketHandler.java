@@ -10,6 +10,7 @@
 *	@version 1.0
 */
 
+import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -33,9 +34,6 @@ public class ClientUpdateTicketHandler implements ActionListener {
 		// Get button clicked
 		JButton buttonClicked = (JButton) evt.getSource();
 		String actionCommand = new String(buttonClicked.getActionCommand());
-		
-		
-		textToSend = textField.getText();
 		
 		if (actionCommand.equals("Submit")) {
 			System.out.println(clientUsername + ": updating ticket...");

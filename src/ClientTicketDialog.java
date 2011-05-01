@@ -10,7 +10,7 @@
 */
 
 import java.net.*;
-
+import java.util.*;
 import java.awt.*;
 import javax.swing.*;
 
@@ -52,13 +52,13 @@ public class ClientTicketDialog extends JDialog {
 		
 		// Setup the two JScrollPanes for the ticket summary and resolution descriptions
 		JScrollPane summaryDescriptionScrollPane = new JScrollPane(summaryDescriptionTextArea);
-		JScrollPane resolutionDescriptionTextArea = new JScrollPane(resolutionDescriptionTextArea);
+		JScrollPane resolutionDescriptionScrollPane = new JScrollPane(resolutionDescriptionTextArea);
 		
 		JLabel summaryDescriptionLabel = new JLabel("Summary Description");
 		JLabel resolutionDescriptionLabel = new JLabel("Resolution Description");
 		
 		summaryDescriptionScrollPane.setColumnHeaderView(summaryDescriptionLabel);
-		resolutionDescriptionTextArea.setColumnHeaderView(resolutionDescriptionLabel);
+		resolutionDescriptionScrollPane.setColumnHeaderView(resolutionDescriptionLabel);
 		
 		
 		// TODO change the statuscode and resolutioncode stuff to radio buttons
@@ -81,7 +81,7 @@ public class ClientTicketDialog extends JDialog {
 		centerPanel.setLayout(new FlowLayout());
 //		centerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 		centerPanel.add(summaryDescriptionScrollPane);
-		centerPanel.add(resolutionDescriptionTextArea);
+		centerPanel.add(resolutionDescriptionScrollPane);
 		
 		// Get the content pane and add components
 		Container clientTicketDialogContentPane = this.getContentPane();

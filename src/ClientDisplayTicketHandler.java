@@ -11,7 +11,6 @@
 
 import java.net.*;
 import java.util.*;
-
 import java.awt.event.*;
 import javax.swing.*;
 
@@ -49,7 +48,7 @@ public class ClientDisplayTicketHandler extends MouseAdapter {
 			
 			// TODO add a takenTickets hashmap that takes the ticketID and the Ticket object; represents the tickets taken by the client
 			
-			tempDialog.setVisible(true);
+			currentTicketDialog.setVisible(true);
 		}
 	}
 }
