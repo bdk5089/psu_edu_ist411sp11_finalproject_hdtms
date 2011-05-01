@@ -1,0 +1,82 @@
+/******************************************************
+** IST 411 Spring 2011 Final Project                 **
+** Help Desk Ticket Management System (HDTMS)        **
+**    Bruce Kennedy                                  **
+**    Eric So                                        **
+*******************************************************/
+
+
+/**************************
+** Compiling The Program **
+***************************/
+
+In order to run the HDTMS java program, you must first compile the classes.  
+The primary classes are Server.java and Client.java.  Compile them by using 
+the following code from the command line from the root directory of the 
+program files:
+
+<bat note = "These commands are contained in the compile.bat file">
+
+	set bin="./bin"
+	set src="./src"
+	javac -Xlint -d %bin% -classpath %src% src/*.java
+	
+</bat>
+
+/**************************
+** Setting Up Database   **
+***************************/
+
+To setup the database, use the following directions:
+
+Step 1:  Define the database in the local windows machine’s ODBC connection 
+         manager by clicking the Add.... button located on the System DSN tab.  
+         In the Create New Data Source window, scroll down until you find the 
+         Microsoft Access Driver (make sure you use the driver that include
+         .accdb file type) and then click Finish.
+
+Step 2:  Press the Select... button and navigate your operating system until 
+         you have found the Access Database that is associated with the HDTMS.  
+         Make sure you type in a logical name for the database reference.  
+         This string value will be used when you launch the HDTMS Server program. 
+           --See section below on Executing the Server, we used 
+           --ist411sp11_finalproject as our ODBC datasource name.
+         Press OK.
+
+Step 3:  Once you see the name of the datasource in the ODBC Manager then press OK.
+
+Step 4:  Make sure that you use this datasource name as a command-line argument for
+         the Server program.
+
+
+/**************************
+** Executing The Server  **
+***************************/
+
+The Server is launched from the command line using the following code (where 
+ist411sp11_finalproject represents the ODBC datasource name that 
+is setup on the computer where the Server is running):
+
+<bat note = "These commands are included in a .bat file called launch_server.bat">
+
+	set bin="./bin"
+	java -classpath %bin% Database ist411sp11_finalproject
+	
+</bat>
+
+/**************************
+** Compiling The Client  **
+***************************/
+
+The IP address of the computer where the Server program is running must be 
+the command-line argument for the Client program.  The Client is launched 
+from the command line using the following code (where 192.168.0.3 represents 
+the IP address of the Server program):
+
+<bat note = "These commands are included in a .bat file called launch_client.bat">
+
+	set bin="./bin"
+	java -classpath %bin% Client 192.168.0.3
+	
+</bat>
+
