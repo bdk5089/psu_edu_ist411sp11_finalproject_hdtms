@@ -40,7 +40,7 @@ public class ClientDisplayTicketHandler extends MouseAdapter {
 			int index = list.locationToIndex(evt.getPoint());
 			
 			// Get the ticketID by grabbing the object representing the ID nubmer, casting to Integer and getting the int value
-			Integer ticketID = (Integer) list.getSelectedValue();
+			Integer ticketID = Integer.valueOf((String) list.getModel().getElementAt(index));
 			System.out.println("Displaying ticket " + index + ": " + ticketID.toString());
 			
 			// Instantiate a JDialog displaying the ticket information and allowing the user to modify it
