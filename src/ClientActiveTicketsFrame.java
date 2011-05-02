@@ -28,7 +28,7 @@ public class ClientActiveTicketsFrame extends JFrame {
 		this.activeTickets = activeTickets;
 		
 		// Get the Ticket IDs using keySet(), convert to array and display		
-		this.activeTicketsToDisplay = new JList(activeTickets.keySet().toArray());
+		this.activeTicketsToDisplay = new JList(new Vector<Ticket>(activeTickets.values()));
 		
 		// Setup the InstantMessageFrame
 		Container clientActiveTicketsFrameContentPane = this.getContentPane();
