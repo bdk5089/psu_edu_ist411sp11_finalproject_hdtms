@@ -13,6 +13,7 @@ import java.net.*;
 import java.util.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.rmi.RemoteException; 
 
 public class ClientDisplayTicketHandler extends MouseAdapter {
 	
@@ -27,6 +28,7 @@ public class ClientDisplayTicketHandler extends MouseAdapter {
 	*	ClientDisplayTicketHandler(String clientUsername, HashMap<String, Ticket> activeTickets)
 	*	@param clientUsername is the username associated with the Client object leading to the instantiation of this ClientDisplayTicketHandler.
 	*	@param activeTickets is the HashMap containing the active tickets, passed in from the Client.
+	*	@param ticketServerObject is the RMI object representing the server. It will be used for callbacks to update the Ticket.
 	*/
 	public ClientDisplayTicketHandler(String clientUsername, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject) {
 		super();
@@ -56,7 +58,11 @@ public class ClientDisplayTicketHandler extends MouseAdapter {
 			ClientTicketDialog currentTicketDialog = new ClientTicketDialog(null, clientUsername, ticketID.toString(), activeTickets, ticketServerObject);
 			
 			// Call checkOutTicket on the RMI object using the method invocation that passes the Ticket object
-			ticketServerObject.checkOutTicket(clientUsername, selected);
+			try {
+				ticketServerObject.checkOutTicket(clientUsername, selected);
+			} catch (RemoteException re) {
+				System.out.println(re.getMessage());
+			}
 			
 			currentTicketDialog.setVisible(true);
 			

@@ -14,6 +14,7 @@ import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.rmi.RemoteException; 
 
 
 public class ClientUpdateTicketHandler implements ActionListener {
@@ -54,7 +55,11 @@ public class ClientUpdateTicketHandler implements ActionListener {
 			ticketToUpdate.setResolution(clientTicketDialog.getResolutionDescriptionField());
 			
 			// Call checkInTicket on the RMI object to update the ticket on the server
-			ticketServerObject.checkInTicket(ticketToUpdate);
+			try {
+				ticketServerObject.checkInTicket(ticketToUpdate);
+			} catch (RemoteException re) {
+				System.out.println(re.getMessage());
+			}
 		}
 	}
 }
