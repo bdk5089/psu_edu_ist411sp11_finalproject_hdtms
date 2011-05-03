@@ -19,27 +19,33 @@ public class ClientTicketDialog extends JDialog {
 	private String clientUsername;
 	private String ticketID;
 	private HashMap<String, Ticket> activeTickets;
+	private TicketServer ticketServerObject;
+	private ClientUpdateTicketHandler clientUpdateTicketHandler;
 	
 	private JLabel ticketIDLabel;
-	
 	private JTextArea summaryDescriptionTextArea;
 	private JTextArea resolutionDescriptionTextArea;
+	private JButton submitButton;
 	
 	// TODO code for radio buttons for the status code and resolution codes
 //	private JTextField statusCodeTextField;
 //	private JTextField resolutionCodeTextField;
 	
-	private JButton submitButton;
-	
-	private ClientUpdateTicketHandler clientUpdateTicketHandler;
-	
-	
-	public ClientTicketDialog(Frame owner, String clientUsername, String ticketID, HashMap<String, Ticket> activeTickets) {
+	/**
+	*	ClientTicketDialog(Frame owner, String clientUsername, String ticketID, HashMap<String, Ticket> activeTickets)
+	*	@param owner is the owner of this JDialog; it will be set to null.
+	*	@param clientUsername is the username associated with the Client object leading to the instantiation of this ClientDisplayTicketHandler.
+	*	@param ticketID is a String representation of the ID number associated with this JDialog.
+	*	@param activeTickets is the HashMap containing the active tickets, passed in from the Client.
+	*	@param ticketServerObject is the RMI object representing the server. It will be used for callbacks to update the Ticket.
+	*/
+	public ClientTicketDialog(Frame owner, String clientUsername, String ticketID, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject) {
 		super(owner, ticketID, false);
 		
 		this.clientUsername = clientUsername;
 		this.ticketID = ticketID;
 		this.activeTickets = activeTickets;
+		this.ticketServerObject = ticketServerObject;
 		
 		// Create the TicketID label
 		ticketIDLabel = new JLabel("Ticket ID: " + ticketID);
@@ -95,7 +101,7 @@ public class ClientTicketDialog extends JDialog {
 		
 		// Make a ClientUpdateTicketHandler ActionListener and register the submit button
 		// This class handles looking up the appropriate ticket, updating it and sending to the server
-		clientUpdateTicketHandler = new ClientUpdateTicketHandler(clientUsername, ticketID, activeTickets, this);
+		clientUpdateTicketHandler = new ClientUpdateTicketHandler(clientUsername, ticketID, activeTickets, ticketServerObject, this);
 		submitButton.addActionListener(clientUpdateTicketHandler);
 	}
 	

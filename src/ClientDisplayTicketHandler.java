@@ -19,13 +19,21 @@ public class ClientDisplayTicketHandler extends MouseAdapter {
 	private String clientUsername;
 	private HashMap<String, Ticket> activeTickets;
 	
+	private TicketServer ticketServerObject;
+	
 	private int numberOfClicks;
 	
-	public ClientDisplayTicketHandler(String clientUsername, HashMap<String, Ticket> activeTickets) {
+	/**
+	*	ClientDisplayTicketHandler(String clientUsername, HashMap<String, Ticket> activeTickets)
+	*	@param clientUsername is the username associated with the Client object leading to the instantiation of this ClientDisplayTicketHandler.
+	*	@param activeTickets is the HashMap containing the active tickets, passed in from the Client.
+	*/
+	public ClientDisplayTicketHandler(String clientUsername, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject) {
 		super();
 		
 		this.clientUsername = clientUsername;
 		this.activeTickets = activeTickets;
+		this.ticketServerObject = ticketServerObject;
 	}
 	
 	public void mouseClicked(MouseEvent evt) {
@@ -45,11 +53,14 @@ public class ClientDisplayTicketHandler extends MouseAdapter {
 			System.out.println("Displaying ticket " + index + ": " + ticketID.toString());
 			
 			// Instantiate a JDialog displaying the ticket information and allowing the user to modify it
-			ClientTicketDialog currentTicketDialog = new ClientTicketDialog(null, clientUsername, ticketID.toString(), activeTickets);
+			ClientTicketDialog currentTicketDialog = new ClientTicketDialog(null, clientUsername, ticketID.toString(), activeTickets, ticketServerObject);
 			
-			// TODO add a takenTickets hashmap that takes the ticketID and the Ticket object; represents the tickets taken by the client
+			// Call checkOutTicket on the RMI object using the method invocation that passes the Ticket object
+			ticketServerObject.checkOutTicket(clientUsername, selected);
 			
 			currentTicketDialog.setVisible(true);
+			
+			// TODO add a takenTickets hashmap that takes the ticketID and the Ticket object; represents the tickets taken by the client
 		}
 	}
 }

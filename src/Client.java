@@ -38,11 +38,14 @@ public class Client {
 	private JFrame activeTicketsFrame;
 	static TicketServer ticketServerObject = null;
 	
-	
+	/**
+	*	Client(String IPAddress, String username)
+	*	@param IPAddress is the IP address of the local machine.
+	*	@param username is the username of the user instantiating the client.
+	*/
 	public Client(String IPAddress, String username) {
 		System.out.println("*************************************************");
 		System.out.println(" Help Desk Ticket Manager Client Started");
-		
 		
 		this.username = username;
 		
@@ -69,7 +72,7 @@ public class Client {
 			this.activeTickets = ticketServerObject.getActiveTickets();
 			
 			// Ininialize the GUI
-			this.activeTicketsFrame = new ClientActiveTicketsFrame(username, activeTickets);
+			this.activeTicketsFrame = new ClientActiveTicketsFrame(username, activeTickets, ticketServerObject);
 			this.activeTicketsFrame.setSize(200, 600);
 			this.activeTicketsFrame.setVisible(true);	
 		} catch (Exception e) {

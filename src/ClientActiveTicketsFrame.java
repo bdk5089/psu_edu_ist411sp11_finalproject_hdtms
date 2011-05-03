@@ -19,30 +19,39 @@ public class ClientActiveTicketsFrame extends JFrame {
 	private String clientUsername;
 	private HashMap<String, Ticket> activeTickets;
 	private JList activeTicketsToDisplay;
+	private TicketServer ticketServerObject;
 	
-	public ClientActiveTicketsFrame(String clientUsername, HashMap<String, Ticket> activeTickets) {
+	/**
+	*	ClientActiveTicketsFrame(String clientUsername, HashMap<String, Ticket> activeTickets)
+	*	@param clientUsername is the username associated with the Client object instantiating this ClientActiveTicketsFrame.
+	*	@param activeTickets is the HashMap containing the active tickets, passed in from the Client.
+	*	@param activeTickets is the HashMap containing the active tickets, passed in from the Client.
+	*/
+	public ClientActiveTicketsFrame(String clientUsername, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject) {
 		super("Active Tickets");
 		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		
 		this.clientUsername = clientUsername;
 		this.activeTickets = activeTickets;
 		
-		// Get the Ticket IDs using keySet(), convert to array and display		
+		this.ticketServerObject = ticketServerObject;
+		
+		// Get the Ticket values, instantiate a JList to display them		
 		this.activeTicketsToDisplay = new JList(new Vector<Ticket>(activeTickets.values()));
 		
-		// Setup the InstantMessageFrame
+		// Setup the JFrame to show the JList of active tickets
 		Container clientActiveTicketsFrameContentPane = this.getContentPane();
 		clientActiveTicketsFrameContentPane.setLayout(new BorderLayout());
 		
 		JScrollPane activeTicketScrollPane = new JScrollPane(activeTicketsToDisplay);
 		clientActiveTicketsFrameContentPane.add(activeTicketScrollPane, BorderLayout.CENTER);
 		
-		// Create a lable to show who's logged in: clientUsername
+		// Create a label to show who's logged in: clientUsername
 		JLabel clientUsernameLabel = new JLabel("Logged in as: " + clientUsername);
 		clientActiveTicketsFrameContentPane.add(clientUsernameLabel, BorderLayout.NORTH);
 		
 		// Create handler for double-clicks on the active tickets list
-		ClientDisplayTicketHandler clientDisplayTicketHandler = new ClientDisplayTicketHandler(clientUsername, activeTickets);
+		ClientDisplayTicketHandler clientDisplayTicketHandler = new ClientDisplayTicketHandler(clientUsername, activeTickets, ticketServerObject);
 		activeTicketsToDisplay.addMouseListener(clientDisplayTicketHandler);
 	}
 	
