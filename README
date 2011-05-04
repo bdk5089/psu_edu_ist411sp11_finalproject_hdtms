@@ -35,6 +35,14 @@ Step 1:  Define the database in the local windows machine’s ODBC connection
          Microsoft Access Driver (make sure you use the driver that include
          .accdb file type) and then click Finish.
 
+         ALERT:  If the drivers do not display, and you have verified that 
+         Microsoft Access has been installed on the PC, then you must verify 
+         that you are using the correct ODBC Data Source Manager.
+
+         The "32-bit" version of the ODBC Data Source Manager is located 
+         here on Windows 7:  %windir%\sysWOW64\odbcad32.exe .  You will need 
+         to launch this version so that the proper drivers are referenced.
+		 
 Step 2:  Press the Select... button and navigate your operating system until 
          you have found the Access Database that is associated with the HDTMS.  
          Make sure you type in a logical name for the database reference.  
@@ -47,6 +55,17 @@ Step 3:  Once you see the name of the datasource in the ODBC Manager then press 
 
 Step 4:  Make sure that you use this datasource name as a command-line argument for
          the Server program.
+
+		 
+ALERT:  If you still get database connection errors when running the Server program, 
+check to make sure that you have compiled with the correct 32-bit Java SDK.  
+This can be checked by looking at the PATH variable in the computer’s Environment 
+Variables.  It should reference a 32-bit version of the Java SDK.  
+Something like: C:\Program Files (x86)\Java\jdk1.6.0_24\lib ; making sure that 
+the JDK is installed in the Program Files (x86) directory.  
+
+In any case, the ODBC driver used and the version of the Java SDK used to compile 
+must both be 32-bit or both need to be 64-bit!
 
 
 /**************************
