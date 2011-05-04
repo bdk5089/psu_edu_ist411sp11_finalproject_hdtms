@@ -19,22 +19,22 @@ import java.rmi.RemoteException;
 
 public class ClientUpdateTicketHandler implements ActionListener {
 	
-	private String clientUsername;
+	private User clientUser;
 	private String ticketID;
 	private HashMap<String, Ticket> activeTickets;
 	private ClientTicketDialog clientTicketDialog;
 	private TicketServer ticketServerObject;
 	
 	/**
-	*	ClientUpdateTicketHandler(String clientUsername, String ticketID, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject, ClientTicketDialog clientTicketDialog)
-	*	@param clientUsername is the username associated with the Client object leading to the instantiation of this ClientDisplayTicketHandler.
+	*	ClientUpdateTicketHandler(User clientUser, String ticketID, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject, ClientTicketDialog clientTicketDialog)
+	*	@param clientUser is the User associated with the Client object leading to the instantiation of this ClientDisplayTicketHandler.
 	*	@param ticketID is a String representation of the ID number associated with this JDialog.
 	*	@param activeTickets is the HashMap containing the active tickets, passed in from the Client.
 	*	@param ticketServerObject is the RMI object representing the server. It will be used for callbacks to update the Ticket.
 	*	@param clientTicketDialog is the JDialog that has the fields containing text with which to update the Ticket. 
 	*/
-	public ClientUpdateTicketHandler(String clientUsername, String ticketID, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject, ClientTicketDialog clientTicketDialog) {
-		this.clientUsername = clientUsername;
+	public ClientUpdateTicketHandler(User clientUser, String ticketID, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject, ClientTicketDialog clientTicketDialog) {
+		this.clientUser = clientUser;
 		this.ticketID = ticketID;
 		this.activeTickets = activeTickets;
 		this.clientTicketDialog = clientTicketDialog;
@@ -47,7 +47,7 @@ public class ClientUpdateTicketHandler implements ActionListener {
 		String actionCommand = new String(buttonClicked.getActionCommand());
 		
 		if (actionCommand.equals("Submit")) {
-			System.out.println(clientUsername + ": updating ticket...");
+			System.out.println(clientUser.getLogon() + ": updating ticket...");
 			
 			// Recover ticket and update it
 			Ticket ticketToUpdate = (Ticket) activeTickets.get(ticketID);

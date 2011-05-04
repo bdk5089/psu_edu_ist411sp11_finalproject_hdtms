@@ -16,7 +16,7 @@ import javax.swing.*;
 
 public class ClientTicketDialog extends JDialog {
 	
-	private String clientUsername;
+	private User clientUser;
 	private String ticketID;
 	private HashMap<String, Ticket> activeTickets;
 	private TicketServer ticketServerObject;
@@ -32,17 +32,17 @@ public class ClientTicketDialog extends JDialog {
 //	private JTextField resolutionCodeTextField;
 	
 	/**
-	*	ClientTicketDialog(Frame owner, String clientUsername, String ticketID, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject)
+	*	ClientTicketDialog(Frame owner, User clientUser, String ticketID, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject)
 	*	@param owner is the owner of this JDialog; it will be set to null.
-	*	@param clientUsername is the username associated with the Client object leading to the instantiation of this ClientDisplayTicketHandler.
+	*	@param clientUser is the user associated with the Client object leading to the instantiation of this ClientDisplayTicketHandler.
 	*	@param ticketID is a String representation of the ID number associated with this JDialog.
 	*	@param activeTickets is the HashMap containing the active tickets, passed in from the Client.
 	*	@param ticketServerObject is the RMI object representing the server. It will be used for callbacks to update the Ticket.
 	*/
-	public ClientTicketDialog(Frame owner, String clientUsername, String ticketID, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject) {
+	public ClientTicketDialog(Frame owner, User clientUser, String ticketID, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject) {
 		super(owner, ticketID, false);
 		
-		this.clientUsername = clientUsername;
+		this.clientUser = clientUser;
 		this.ticketID = ticketID;
 		this.activeTickets = activeTickets;
 		this.ticketServerObject = ticketServerObject;
@@ -113,12 +113,12 @@ public class ClientTicketDialog extends JDialog {
 		
 		// Make a ClientUpdateTicketHandler ActionListener and register the submit button
 		// This class handles looking up the appropriate ticket, updating it and sending to the server
-		clientUpdateTicketHandler = new ClientUpdateTicketHandler(clientUsername, ticketID, activeTickets, ticketServerObject, this);
+		clientUpdateTicketHandler = new ClientUpdateTicketHandler(clientUser, ticketID, activeTickets, ticketServerObject, this);
 		submitButton.addActionListener(clientUpdateTicketHandler);
 	}
 	
-	public String getClientUsername() {
-		return clientUsername;
+	public User getClientUser() {
+		return clientUser;
 	}
 	
 	public String getTicketID() {

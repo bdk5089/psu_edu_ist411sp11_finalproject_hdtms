@@ -16,30 +16,31 @@ import javax.swing.*;
 
 public class ClientActiveTicketsFrame extends JFrame {
 	
-	private String clientUsername;
+	private User clientUser;
 	private HashMap<String, Ticket> activeTickets;
 	private JList activeTicketsToDisplay;
 	private TicketServer ticketServerObject;
 	
-	public static void main(String[] args) {
+/*	public static void main(String[] args) {
 		// Create the ClientActiveTicketsFrame
 		// FOR TESTING PURPOSES!!!
 		ClientActiveTicketsFrame test  = new ClientActiveTicketsFrame("anonymous",new HashMap<String,Ticket>(),null);
 		test.setSize(400, 300);
 		test.setVisible(true);
 	}	
-	
+*/
+
 	/**
-	*	ClientActiveTicketsFrame(String clientUsername, HashMap<String, Ticket> activeTickets)
-	*	@param clientUsername is the username associated with the Client object instantiating this ClientActiveTicketsFrame.
+	*	ClientActiveTicketsFrame(User clientUser, HashMap<String, Ticket> activeTickets)
+	*	@param clientUser is the User associated with the Client object instantiating this ClientActiveTicketsFrame.
 	*	@param activeTickets is the HashMap containing the active tickets, passed in from the Client.
 	*	@param activeTickets is the HashMap containing the active tickets, passed in from the Client.
 	*/
-	public ClientActiveTicketsFrame(String clientUsername, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject) {
+	public ClientActiveTicketsFrame(User clientUser, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject) {
 		super("Active Tickets");
 		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		
-		this.clientUsername = clientUsername;
+		this.clientUser = clientUser;
 		this.activeTickets = activeTickets;
 		
 		this.ticketServerObject = ticketServerObject;
@@ -54,8 +55,8 @@ public class ClientActiveTicketsFrame extends JFrame {
 		JScrollPane activeTicketScrollPane = new JScrollPane(activeTicketsToDisplay);
 		clientActiveTicketsFrameContentPane.add(activeTicketScrollPane, BorderLayout.CENTER);
 		
-		// Create a label to show who's logged in: clientUsername
-		JLabel clientUsernameLabel = new JLabel("Logged in as: " + clientUsername);
+		// Create a label to show who's logged in: clientUser
+		JLabel clientUsernameLabel = new JLabel("Logged in as: " + clientUser.getLogon());
 		clientActiveTicketsFrameContentPane.add(clientUsernameLabel, BorderLayout.NORTH);
 		
 		// Create a button to add new tickets
@@ -67,7 +68,7 @@ public class ClientActiveTicketsFrame extends JFrame {
 		
 		
 		// Create handler for double-clicks on the active tickets list
-		ClientDisplayTicketHandler clientDisplayTicketHandler = new ClientDisplayTicketHandler(clientUsername, activeTickets, ticketServerObject);
+		ClientDisplayTicketHandler clientDisplayTicketHandler = new ClientDisplayTicketHandler(clientUser, activeTickets, ticketServerObject);
 		activeTicketsToDisplay.addMouseListener(clientDisplayTicketHandler);
 		newButton.addMouseListener(clientDisplayTicketHandler);
 	}

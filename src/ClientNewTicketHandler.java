@@ -16,7 +16,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.rmi.RemoteException; 
 import java.sql.Timestamp;
-import java.sql.Date;
 
 
 public class ClientNewTicketHandler implements ActionListener {
@@ -47,14 +46,14 @@ public class ClientNewTicketHandler implements ActionListener {
 		String actionCommand = new String(buttonClicked.getActionCommand());
 		
 		if (actionCommand.equals("Submit")) {
-			System.out.println(clientUser.getName() + ": creating ticket...");
+			System.out.println(clientUser.getLogon() + ": creating ticket...");
 			
 			// Get the description and resolution from the ClientNewTicketDialog
 			String newDescription = clientNewTicketDialog.getSummaryDescriptionField();
 			String newResolution = clientNewTicketDialog.getResolutionDescriptionField();
 			
 			// Create a ticket
-			Ticket newTicket = new Ticket(newDescription, newResolution, 1, 1, clientUser, new Timestamp(new Date().getTime()));
+			Ticket newTicket = new Ticket(newDescription, newResolution, 1, 1, clientUser, new Timestamp(new java.util.Date().getTime()));
 			
 			// Call checkInTicket() on the RMI object to update the ticket on the server
 			try {

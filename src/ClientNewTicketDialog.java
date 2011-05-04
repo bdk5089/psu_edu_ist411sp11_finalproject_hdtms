@@ -95,7 +95,7 @@ public class ClientNewTicketDialog extends JDialog {
 	}
 	
 	public User getClientUser() {
-		return clientUser();
+		return clientUser;
 	}
 	
 	public String getTicketID() {

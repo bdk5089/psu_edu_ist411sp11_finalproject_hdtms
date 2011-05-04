@@ -74,7 +74,7 @@ public class Client {
 			this.activeTickets = ticketServerObject.getActiveTickets();
 				
 			// Ininialize the GUI
-			this.activeTicketsFrame = new ClientActiveTicketsFrame(username, activeTickets, ticketServerObject);
+			this.activeTicketsFrame = new ClientActiveTicketsFrame(loggedOnUser, activeTickets, ticketServerObject);
 			this.activeTicketsFrame.setSize(400, 300);
 			this.activeTicketsFrame.setVisible(true);
 			

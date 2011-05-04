@@ -17,7 +17,7 @@ import java.rmi.RemoteException;
 
 public class ClientDisplayTicketHandler extends MouseAdapter {
 	
-	private String clientUsername;
+	private User clientUser;
 	private HashMap<String, Ticket> activeTickets;
 	
 	private TicketServer ticketServerObject;
@@ -25,15 +25,15 @@ public class ClientDisplayTicketHandler extends MouseAdapter {
 	private int numberOfClicks;
 	
 	/**
-	*	ClientDisplayTicketHandler(String clientUsername, HashMap<String, Ticket> activeTickets)
-	*	@param clientUsername is the username associated with the Client object leading to the instantiation of this ClientDisplayTicketHandler.
+	*	ClientDisplayTicketHandler(String clientUser, HashMap<String, Ticket> activeTickets)
+	*	@param clientUser is the User associated with the Client object leading to the instantiation of this ClientDisplayTicketHandler.
 	*	@param activeTickets is the HashMap containing the active tickets, passed in from the Client.
 	*	@param ticketServerObject is the RMI object representing the server. It will be used for callbacks to update the Ticket.
 	*/
-	public ClientDisplayTicketHandler(String clientUsername, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject) {
+	public ClientDisplayTicketHandler(User clientUser, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject) {
 		super();
 		
-		this.clientUsername = clientUsername;
+		this.clientUser = clientUser;
 		this.activeTickets = activeTickets;
 		this.ticketServerObject = ticketServerObject;
 	}
@@ -60,11 +60,11 @@ public class ClientDisplayTicketHandler extends MouseAdapter {
 				System.out.println("Displaying ticket " + index + ": " + ticketID.toString());
 				
 				// Instantiate a JDialog displaying the ticket information and allowing the user to modify it
-				ClientTicketDialog currentTicketDialog = new ClientTicketDialog(null, clientUsername, ticketID.toString(), activeTickets, ticketServerObject);
+				ClientTicketDialog currentTicketDialog = new ClientTicketDialog(null, clientUser, ticketID.toString(), activeTickets, ticketServerObject);
 				
 				// Call checkOutTicket on the RMI object using the method invocation that passes the Ticket object
 				try {
-					ticketServerObject.checkOutTicket(clientUsername, selected);
+					ticketServerObject.checkOutTicket(clientUser.getLogon(), selected);
 				} catch (RemoteException re) {
 					System.out.println(re.getMessage());
 				}
@@ -73,8 +73,10 @@ public class ClientDisplayTicketHandler extends MouseAdapter {
 				
 				// TODO add a takenTickets hashmap that takes the ticketID and the Ticket object; represents the tickets taken by the client
 			}
-		}else if (source.equals("JButton")){
+		} else if (source.equals("JButton")){
 			System.out.println("NEW BUTTON CLICKED");
+			// Instantiate a new NewTicketDialog class
+			
 		}
 	}
 }
