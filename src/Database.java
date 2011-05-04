@@ -57,7 +57,7 @@ public class Database {
 		System.out.println("User : "+user);
 		
 		System.out.println("**** CREATE A TICKET              ****");
-		Ticket t = new Ticket("New Test Ticket", "", d.getResolutionCodes().get(0), d.getStatusCodes().get(0), user, new Timestamp(new Date().getTime()));
+		Ticket t = new Ticket("New Test Ticket", "", null, null, user, new Timestamp(new Date().getTime()));
 		TicketLogEntry te = new TicketLogEntry(t.getID(), "Work performed goes here", user, new Timestamp(new Date().getTime()));
 		t.addLogEntry(te);
 		boolean succ = d.updateTicket(t);
@@ -179,9 +179,17 @@ public class Database {
 					String sql = "INSERT INTO tblTickets (TicketSummaryDesc, TicketStatusCodeID, TicketResolutionDesc, TicketResolutionCodeID, TicketCheckedOutByUserID, TicketCheckedOutDateTime) VALUES( ?,  ?,  ?,  ?,  ?,  ? )";
 					PreparedStatement sqlment = connect.prepareStatement(sql);
 					sqlment.setString(1,t.getDesc());
+					if (t.getStatusCode() != null){
 					sqlment.setInt(2,t.getStatusCode().getID());
+					}else{
+					sqlment.setInt(2,1);
+					}
 					sqlment.setString(3,t.getResolution());
+					if (t.getResolutionCode() != null){
 					sqlment.setInt(4,t.getResolutionCode().getID());
+					}else{
+					sqlment.setInt(4,1);
+					}
 					sqlment.setInt(5,t.getCheckedOutBy().getID());
 					sqlment.setTimestamp(6,t.getCheckedOutDate());
 					sqlment.executeUpdate(); 	
