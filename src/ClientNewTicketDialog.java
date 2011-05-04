@@ -1,10 +1,10 @@
 /*
-	Filename: ClientTicketDialog.java
-	Classname: ClientTicketDialog
-	Comments: JDialog that displays the ticket information.
+	Filename: ClientNewTicketDialog.java
+	Classname: ClientNewTicketDialog
+	Comments: JDialog that allows the user to create a new ticket.
 */
 
-/** The ClientTicketDialog displays ticket information of the ticket that was double-clicked.
+/** The ClientNewTicketDialog displays a dialog so that the user can create a new Ticket.
 *	@author Eric So, Bruce Kennedy
 *	@version 1.0
 */
@@ -14,50 +14,40 @@ import java.util.*;
 import java.awt.*;
 import javax.swing.*;
 
-public class ClientTicketDialog extends JDialog {
+public class ClientNewTicketDialog extends JDialog {
 	
-	private String clientUsername;
+	private User clientUser;
 	private String ticketID;
 	private HashMap<String, Ticket> activeTickets;
 	private TicketServer ticketServerObject;
-	private ClientUpdateTicketHandler clientUpdateTicketHandler;
+	
+	private ClientNewTicketHandler clientNewTicketHandler;
 	
 	private JLabel ticketIDLabel;
 	private JTextArea summaryDescriptionTextArea;
 	private JTextArea resolutionDescriptionTextArea;
 	private JButton submitButton;
 	
-	// TODO code for radio buttons for the status code and resolution codes
-//	private JTextField statusCodeTextField;
-//	private JTextField resolutionCodeTextField;
-	
 	/**
-	*	ClientTicketDialog(Frame owner, String clientUsername, String ticketID, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject)
+	*	ClientNewTicketDialog(Frame owner, User clientUser, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject)
 	*	@param owner is the owner of this JDialog; it will be set to null.
-	*	@param clientUsername is the username associated with the Client object leading to the instantiation of this ClientDisplayTicketHandler.
-	*	@param ticketID is a String representation of the ID number associated with this JDialog.
+	*	@param clientUser is the username associated with the Client object leading to the instantiation of this ClientDisplayTicketHandler.
 	*	@param activeTickets is the HashMap containing the active tickets, passed in from the Client.
-	*	@param ticketServerObject is the RMI object representing the server. It will be used for callbacks to update the Ticket.
+	*	@param ticketServerObject is the RMI object representing the server. It will be used for callbacks to create the Ticket.
 	*/
-	public ClientTicketDialog(Frame owner, String clientUsername, String ticketID, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject) {
-		super(owner, ticketID, false);
+	public ClientNewTicketDialog(Frame owner, User clientUser, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject) {
+		super(owner, "New Ticket", false);
 		
-		this.clientUsername = clientUsername;
-		this.ticketID = ticketID;
+		this.clientUser = clientUser;
 		this.activeTickets = activeTickets;
 		this.ticketServerObject = ticketServerObject;
 		
-		Ticket ticket = (Ticket) activeTickets.get(ticketID);
-		
 		// Create the TicketID label
-		ticketIDLabel = new JLabel("Ticket ID: " + ticketID);
+		ticketIDLabel = new JLabel("Create new ticket" );
 		
 		// Create the text areas where summary and resolution will be entered
 		summaryDescriptionTextArea = new JTextArea(20, 20);
 		resolutionDescriptionTextArea = new JTextArea(20, 20);
-		// Set the text in the text areas
-		summaryDescriptionTextArea.setText(ticket.getDesc());
-		resolutionDescriptionTextArea.setText(ticket.getResolution());
 		// Make the text areas editable
 		summaryDescriptionTextArea.setEditable(true);
 		resolutionDescriptionTextArea.setEditable(true);
@@ -71,13 +61,6 @@ public class ClientTicketDialog extends JDialog {
 		
 		summaryDescriptionScrollPane.setColumnHeaderView(summaryDescriptionLabel);
 		resolutionDescriptionScrollPane.setColumnHeaderView(resolutionDescriptionLabel);
-		
-		
-		// TODO change the statuscode and resolutioncode stuff to radio buttons
-		// put into the EAST border
-//		statusCodeTextField = new JTextField();
-//		resolutionCodeTextField = new JTextField();
-		
 		
 		// Create the submit button
 		submitButton = new JButton("Submit");
@@ -105,14 +88,14 @@ public class ClientTicketDialog extends JDialog {
 		// TODO may need to change the dimensions
 		this.setSize(500, 450);
 		
-		// Make a ClientUpdateTicketHandler ActionListener and register the submit button
-		// This class handles looking up the appropriate ticket, updating it and sending to the server
-		clientUpdateTicketHandler = new ClientUpdateTicketHandler(clientUsername, ticketID, activeTickets, ticketServerObject, this);
-		submitButton.addActionListener(clientUpdateTicketHandler);
+		// Make a ClientNewTicketHandler ActionListener and register the submit button
+		// This class handles creating a new Ticket and sending that to the server
+		clientNewTicketHandler = new ClientNewTicketHandler(clientUser, activeTickets, ticketServerObject, this);
+		submitButton.addActionListener(clientNewTicketHandler);
 	}
 	
-	public String getClientUsername() {
-		return clientUsername;
+	public User getClientUser() {
+		return clientUser();
 	}
 	
 	public String getTicketID() {
