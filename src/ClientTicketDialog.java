@@ -54,7 +54,13 @@ public class ClientTicketDialog extends JDialog {
 		
 		// Create the text areas where summary and resolution will be entered
 		summaryDescriptionTextArea = new JTextArea(20, 20);
+		summaryDescriptionTextArea.setLineWrap(true);
+		summaryDescriptionTextArea.setWrapStyleWord(true);
+		
 		resolutionDescriptionTextArea = new JTextArea(20, 20);
+		resolutionDescriptionTextArea.setLineWrap(true);
+		resolutionDescriptionTextArea.setWrapStyleWord(true);
+		
 		// Set the text in the text areas
 		summaryDescriptionTextArea.setText(ticket.getDesc());
 		resolutionDescriptionTextArea.setText(ticket.getResolution());
