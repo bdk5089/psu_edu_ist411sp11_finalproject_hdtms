@@ -53,8 +53,8 @@ public class ClientTicketDialog extends JDialog {
 		ticketIDLabel = new JLabel("Ticket ID: " + ticketID);
 		
 		// Create the text areas where summary and resolution will be entered
-		summaryDescriptionTextArea = new JTextArea(60, 60);
-		resolutionDescriptionTextArea = new JTextArea(60, 60);
+		summaryDescriptionTextArea = new JTextArea(20, 20);
+		resolutionDescriptionTextArea = new JTextArea(20, 20);
 		// Set the text in the text areas
 		summaryDescriptionTextArea.setText(ticket.getDesc());
 		resolutionDescriptionTextArea.setText(ticket.getResolution());
@@ -91,7 +91,7 @@ public class ClientTicketDialog extends JDialog {
 		southPanel.add(submitButton);
 		
 		centerPanel.setLayout(new FlowLayout());
-//		centerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+		centerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 		centerPanel.add(summaryDescriptionScrollPane);
 		centerPanel.add(resolutionDescriptionScrollPane);
 		
@@ -103,7 +103,7 @@ public class ClientTicketDialog extends JDialog {
 		clientTicketDialogContentPane.add(centerPanel, BorderLayout.CENTER);
 		
 		// TODO may need to change the dimensions
-		this.setSize(400, 200);
+		this.setSize(500, 450);
 		
 		// Make a ClientUpdateTicketHandler ActionListener and register the submit button
 		// This class handles looking up the appropriate ticket, updating it and sending to the server
