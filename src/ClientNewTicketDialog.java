@@ -46,7 +46,13 @@ public class ClientNewTicketDialog extends JFrame {
 		
 		// Create the text areas where summary and resolution will be entered
 		summaryDescriptionTextArea = new JTextArea(20, 20);
+		summaryDescriptionTextArea.setLineWrap(true);
+		summaryDescriptionTextArea.setWrapStyleWord(true);
+		
 		resolutionDescriptionTextArea = new JTextArea(20, 20);
+		resolutionDescriptionTextArea.setLineWrap(true);
+		resolutionDescriptionTextArea.setWrapStyleWord(true);
+		
 		// Make the text areas editable
 		summaryDescriptionTextArea.setEditable(true);
 		resolutionDescriptionTextArea.setEditable(true);
