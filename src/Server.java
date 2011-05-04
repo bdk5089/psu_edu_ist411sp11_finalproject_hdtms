@@ -96,15 +96,15 @@ public class Server extends UnicastRemoteObject implements TicketServer {
 	*
 	*	@return returns true if user exists in the database, false if otherwise.
 	*/		
-	public boolean logon(String username) throws RemoteException {
+	public User logon(String username) throws RemoteException {
 		User user = db.getUserByLogon(username);
 		if (user == null) {
-			return false;
+			return null;
 		} else if (!clientsLoggedOn.contains(username)) {
 			clientsLoggedOn.add(username);
 		}
 		
-		return true;
+		return user;
 	}
 	
 	/**
