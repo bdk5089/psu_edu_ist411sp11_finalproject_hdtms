@@ -19,9 +19,9 @@ import java.rmi.RemoteException;
 
 public class ClientUpdateTicketHandler implements ActionListener {
 	
+	private ClientActiveTicketsFrame owner;
 	private User clientUser;
-	private String ticketID;
-	private HashMap<String, Ticket> activeTickets;
+	private Ticket ticket;
 	private ClientTicketDialog clientTicketDialog;
 	private TicketServer ticketServerObject;
 	
@@ -33,10 +33,10 @@ public class ClientUpdateTicketHandler implements ActionListener {
 	*	@param ticketServerObject is the RMI object representing the server. It will be used for callbacks to update the Ticket.
 	*	@param clientTicketDialog is the JDialog that has the fields containing text with which to update the Ticket. 
 	*/
-	public ClientUpdateTicketHandler(User clientUser, String ticketID, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject, ClientTicketDialog clientTicketDialog) {
+	public ClientUpdateTicketHandler(ClientActiveTicketsFrame owner, User clientUser, Ticket ticket, ClientTicketDialog clientTicketDialog, TicketServer ticketServerObject) {
+		this.owner = owner;
 		this.clientUser = clientUser;
-		this.ticketID = ticketID;
-		this.activeTickets = activeTickets;
+		this.ticket = ticket;
 		this.clientTicketDialog = clientTicketDialog;
 		this.ticketServerObject = ticketServerObject;
 	}
@@ -50,19 +50,19 @@ public class ClientUpdateTicketHandler implements ActionListener {
 			System.out.println(clientUser.getLogon() + ": updating ticket...");
 			
 			// Recover ticket and update it
-			Ticket ticketToUpdate = (Ticket) activeTickets.get(ticketID);
+			Ticket ticketToUpdate = ticket;
 			ticketToUpdate.setDesc(clientTicketDialog.getSummaryDescriptionField());
 			ticketToUpdate.setResolution(clientTicketDialog.getResolutionDescriptionField());
 			
 			// Call checkInTicket() on the RMI object to update the ticket on the server
 			try {
 				ticketServerObject.checkInTicket(ticketToUpdate);
+				// Refresh the activeTickets HashMap
+				owner.getActiveTickets();
 			} catch (RemoteException re) {
 				System.out.println(re.getMessage());
 			}
-			
-			// Refresh the activeTickets HashMap
-			activeTickets = ticketServerObject.getActiveTickets();
+					
 			
 			// Close the ClientTicketDialog
 			clientTicketDialog.setVisible(false);

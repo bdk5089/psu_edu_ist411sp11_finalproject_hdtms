@@ -30,7 +30,7 @@ public class ClientDisplayTicketHandler extends MouseAdapter {
 	*	@param activeTickets is the HashMap containing the active tickets, passed in from the Client.
 	*	@param ticketServerObject is the RMI object representing the server. It will be used for callbacks to update the Ticket.
 	*/
-	public ClientDisplayTicketHandler(User clientUser, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject, ClientActiveTicketsFrame clientActiveTicketsFrame) {
+	public ClientDisplayTicketHandler(ClientActiveTicketsFrame clientActiveTicketsFrame, User clientUser, TicketServer ticketServerObject) {
 		super();
 		
 		this.clientUser = clientUser;
@@ -61,7 +61,7 @@ public class ClientDisplayTicketHandler extends MouseAdapter {
 				System.out.println("Displaying ticket " + index + ": " + ticketID.toString());
 				
 				// Instantiate a JDialog displaying the ticket information and allowing the user to modify it
-				ClientTicketDialog currentTicketDialog = new ClientTicketDialog(null, clientUser, ticketID.toString(), activeTickets, ticketServerObject);
+				ClientTicketDialog currentTicketDialog = new ClientTicketDialog(clientActiveTicketsFrame, clientUser, selected,  ticketServerObject);
 				
 				// Call checkOutTicket on the RMI object using the method invocation that passes the Ticket object
 				try {
@@ -77,7 +77,7 @@ public class ClientDisplayTicketHandler extends MouseAdapter {
 		} else if (source.equals("JButton")){
 			System.out.println("New Button Clicked");
 			// Instantiate a new NewTicketDialog class
-			ClientNewTicketDialog clientNewTicketDialog = new ClientNewTicketDialog(null, clientUser, activeTickets, ticketServerObject);
+			ClientNewTicketDialog clientNewTicketDialog = new ClientNewTicketDialog(clientActiveTicketsFrame, clientUser, ticketServerObject);
 			clientNewTicketDialog.setVisible(true);
 		}
 	}

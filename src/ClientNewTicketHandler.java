@@ -21,11 +21,10 @@ import java.sql.Timestamp;
 
 public class ClientNewTicketHandler implements ActionListener {
 	
+	private ClientActiveTicketsFrame owner;	
 	private User clientUser;
-	private HashMap<String, Ticket> activeTickets;
 	private ClientNewTicketDialog clientNewTicketDialog;
 	private TicketServer ticketServerObject;
-	
 	
 	/**
 	*	ClientNewTicketHandler(User clientUser, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject, ClientNewTicketDialog clientNewTicketDialog)
@@ -34,9 +33,9 @@ public class ClientNewTicketHandler implements ActionListener {
 	*	@param ticketServerObject is the RMI object representing the server. It will be used for callbacks to create the Ticket.
 	*	@param ClientNewTicketDialog is the JDialog that has the fields containing text with which to create the Ticket. 
 	*/
-	public ClientNewTicketHandler(User clientUser, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject, ClientNewTicketDialog clientNewTicketDialog) {
+	public ClientNewTicketHandler(ClientActiveTicketsFrame owner, User clientUser, ClientNewTicketDialog clientNewTicketDialog, TicketServer ticketServerObject) {
+		this.owner = owner;
 		this.clientUser = clientUser;
-		this.activeTickets = activeTickets;
 		this.clientNewTicketDialog = clientNewTicketDialog;
 		this.ticketServerObject = ticketServerObject;
 	}
@@ -53,23 +52,18 @@ public class ClientNewTicketHandler implements ActionListener {
 			String newDescription = clientNewTicketDialog.getSummaryDescriptionField();
 			String newResolution = clientNewTicketDialog.getResolutionDescriptionField();
 			
-			// Create a ticket
-<<<<<<< HEAD
 			Ticket newTicket = new Ticket(newDescription, newResolution, null, null, clientUser, new Timestamp(new Date().getTime()));
-=======
-			Ticket newTicket = new Ticket(newDescription, newResolution, null, null, clientUser, new Timestamp(new java.util.Date().getTime()));
->>>>>>> origin/master
-			
+
 			// Call checkInTicket() on the RMI object to update the ticket on the server
 			try {
 				ticketServerObject.checkInTicket(newTicket);
+				owner.getActiveTickets();
 			} catch (RemoteException re) {
 				System.out.println(re.getMessage());
 			}
 			
 			// Refresh the activeTickets HashMap
-			activeTickets = ticketServerObject.getActiveTickets();
-			
+					
 			// Close the ClientNewTicketDialog
 			clientNewTicketDialog.setVisible(false);
 			clientNewTicketDialog.dispose();

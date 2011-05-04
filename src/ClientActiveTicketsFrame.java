@@ -13,6 +13,7 @@ import java.net.*;
 import java.util.*;
 import java.awt.*;
 import javax.swing.*;
+import java.rmi.RemoteException; 
 
 public class ClientActiveTicketsFrame extends JFrame {
 	
@@ -36,7 +37,7 @@ public class ClientActiveTicketsFrame extends JFrame {
 	*	@param activeTickets is the HashMap containing the active tickets, passed in from the Client.
 	*	@param activeTickets is the HashMap containing the active tickets, passed in from the Client.
 	*/
-	public ClientActiveTicketsFrame(User clientUser, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject) {
+	public ClientActiveTicketsFrame(User clientUser, TicketServer ticketServerObject) {
 		super("Active Tickets");
 		this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		
@@ -45,16 +46,15 @@ public class ClientActiveTicketsFrame extends JFrame {
 		
 		this.ticketServerObject = ticketServerObject;
 		
-		// Get the Ticket values, instantiate a JList to display them		
-		this.activeTicketsToDisplay = new JList(new Vector<Ticket>(activeTickets.values()));
-		
 		// Setup the JFrame to show the JList of active tickets
 		Container clientActiveTicketsFrameContentPane = this.getContentPane();
 		clientActiveTicketsFrameContentPane.setLayout(new BorderLayout());
 		
+		this.activeTicketsToDisplay = new JList();		
+		
 		JScrollPane activeTicketScrollPane = new JScrollPane(activeTicketsToDisplay);
 		clientActiveTicketsFrameContentPane.add(activeTicketScrollPane, BorderLayout.CENTER);
-		
+			
 		// Create a label to show who's logged in: clientUser
 		JLabel clientUsernameLabel = new JLabel("Logged in as: " + clientUser.getLogon());
 		clientActiveTicketsFrameContentPane.add(clientUsernameLabel, BorderLayout.NORTH);
@@ -66,11 +66,22 @@ public class ClientActiveTicketsFrame extends JFrame {
 		buttonPanel.setMaximumSize(new Dimension(10000,60));
 		clientActiveTicketsFrameContentPane.add(buttonPanel, BorderLayout.SOUTH);
 		
-		
 		// Create handler for double-clicks on the active tickets list
-		ClientDisplayTicketHandler clientDisplayTicketHandler = new ClientDisplayTicketHandler(clientUser, activeTickets, ticketServerObject, this);
+		ClientDisplayTicketHandler clientDisplayTicketHandler = new ClientDisplayTicketHandler(this, clientUser, ticketServerObject);
 		activeTicketsToDisplay.addMouseListener(clientDisplayTicketHandler);
 		newButton.addMouseListener(clientDisplayTicketHandler);
+		
+		getActiveTickets();
 	}
+	
+	public void getActiveTickets(){
+		try{
+			activeTickets = ticketServerObject.getActiveTickets();
+			activeTicketsToDisplay.setListData(new Vector<Ticket>(activeTickets.values()));
+		}catch(RemoteException e){
+			e.printStackTrace();
+		}
+	}
+	
 	
 }

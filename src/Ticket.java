@@ -146,7 +146,14 @@ public class Ticket implements java.io.Serializable{
 	*   @return returns a string representation of the object  
 	*/	
 	public String toString(){
-		return "["+getStatusCode()+"] "+desc+"";
+		String s = desc;
+		int l = 50;
+		if (s.length()>l){
+			s = desc.substring(0,l-3)+"...";
+		}else{
+			s = desc.substring(0,desc.length());
+		}
+		return ""+s+"";
 	}
 	
 	/**

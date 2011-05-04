@@ -14,13 +14,13 @@ import java.util.*;
 import java.awt.*;
 import javax.swing.*;
 
-public class ClientTicketDialog extends JDialog {
+public class ClientTicketDialog extends JFrame {
 	
 	private User clientUser;
-	private String ticketID;
-	private HashMap<String, Ticket> activeTickets;
+	private Ticket ticket;
 	private TicketServer ticketServerObject;
 	private ClientUpdateTicketHandler clientUpdateTicketHandler;
+	private ClientActiveTicketsFrame owner;
 	
 	private JLabel ticketIDLabel;
 	private JTextArea summaryDescriptionTextArea;
@@ -32,25 +32,24 @@ public class ClientTicketDialog extends JDialog {
 //	private JTextField resolutionCodeTextField;
 	
 	/**
-	*	ClientTicketDialog(Frame owner, User clientUser, String ticketID, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject)
+	*	ClientTicketDialog(ClientActiveTicketsFrame owner, User clientUser, String ticketID, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject)
 	*	@param owner is the owner of this JDialog; it will be set to null.
 	*	@param clientUser is the user associated with the Client object leading to the instantiation of this ClientDisplayTicketHandler.
 	*	@param ticketID is a String representation of the ID number associated with this JDialog.
 	*	@param activeTickets is the HashMap containing the active tickets, passed in from the Client.
 	*	@param ticketServerObject is the RMI object representing the server. It will be used for callbacks to update the Ticket.
 	*/
-	public ClientTicketDialog(Frame owner, User clientUser, String ticketID, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject) {
-		super(owner, ticketID, false);
+	public ClientTicketDialog(ClientActiveTicketsFrame owner, User clientUser, Ticket ticket, TicketServer ticketServerObject) {
+		super("Update Ticket");
 		
+		this.owner = owner;
 		this.clientUser = clientUser;
-		this.ticketID = ticketID;
-		this.activeTickets = activeTickets;
+		this.ticket = ticket;
 		this.ticketServerObject = ticketServerObject;
 		
-		Ticket ticket = (Ticket) activeTickets.get(ticketID);
 		
 		// Create the TicketID label
-		ticketIDLabel = new JLabel("Ticket ID: " + ticketID);
+		ticketIDLabel = new JLabel("Ticket ID: " + ticket.getID());
 		
 		// Create the text areas where summary and resolution will be entered
 		summaryDescriptionTextArea = new JTextArea(20, 20);
@@ -113,7 +112,7 @@ public class ClientTicketDialog extends JDialog {
 		
 		// Make a ClientUpdateTicketHandler ActionListener and register the submit button
 		// This class handles looking up the appropriate ticket, updating it and sending to the server
-		clientUpdateTicketHandler = new ClientUpdateTicketHandler(clientUser, ticketID, activeTickets, ticketServerObject, this);
+		clientUpdateTicketHandler = new ClientUpdateTicketHandler(owner, clientUser, ticket, this, ticketServerObject);
 		submitButton.addActionListener(clientUpdateTicketHandler);
 	}
 	
@@ -121,8 +120,8 @@ public class ClientTicketDialog extends JDialog {
 		return clientUser;
 	}
 	
-	public String getTicketID() {
-		return ticketID;
+	public int getTicketID() {
+		return ticket.getID();
 	}
 	
 	public String getSummaryDescriptionField() {

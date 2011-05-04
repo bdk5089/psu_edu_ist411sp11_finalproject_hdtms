@@ -67,14 +67,9 @@ public class Client {
 				System.out.println("   Error: Username " + this.username + " not in database.");
 				System.exit(-1);
 			}
-			
-			// TODO The activeTickets HashMap needs to be continously updated. We could spawn a thread that will do this
-			
-			// Get the list of active tickets
-			this.activeTickets = ticketServerObject.getActiveTickets();
 				
 			// Ininialize the GUI
-			this.activeTicketsFrame = new ClientActiveTicketsFrame(loggedOnUser, activeTickets, ticketServerObject);
+			this.activeTicketsFrame = new ClientActiveTicketsFrame(loggedOnUser,  ticketServerObject);
 			this.activeTicketsFrame.setSize(400, 300);
 			this.activeTicketsFrame.setVisible(true);
 			
