@@ -460,6 +460,7 @@ public class Database {
 				User TicketWorkPerformedByUserID = getUserByID(results.getInt(4));
 				Timestamp TicketWorkLogEntryDateTime = results.getTimestamp(5);
 				record = new TicketLogEntry(TicketWorkLogID, 
+											TicketID,
 											TicketWorkLogEntry, 
 											TicketWorkPerformedByUserID, 
 											TicketWorkLogEntryDateTime);
@@ -492,6 +493,7 @@ public class Database {
 				User TicketWorkPerformedByUserID = getUserByID(results.getInt(4));
 				Timestamp TicketWorkLogEntryDateTime = results.getTimestamp(5);
 				record = new TicketLogEntry(TicketWorkLogID, 
+											TicketID,
 											TicketWorkLogEntry, 
 											TicketWorkPerformedByUserID, 
 											TicketWorkLogEntryDateTime);
