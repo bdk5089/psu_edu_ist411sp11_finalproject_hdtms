@@ -47,12 +47,18 @@ public class ClientTicketDialog extends JDialog {
 		this.activeTickets = activeTickets;
 		this.ticketServerObject = ticketServerObject;
 		
+		Ticket ticket = (Ticket) activeTickets.get(ticketID);
+		
 		// Create the TicketID label
 		ticketIDLabel = new JLabel("Ticket ID: " + ticketID);
 		
 		// Create the text areas where summary and resolution will be entered
 		summaryDescriptionTextArea = new JTextArea(60, 60);
 		resolutionDescriptionTextArea = new JTextArea(60, 60);
+		// Set the text in the text areas
+		summaryDescriptionTextArea.setText(ticket.getDesc());
+		resolutionDescriptionTextArea.setText(ticket.getResolution());
+		// Make the text areas editable
 		summaryDescriptionTextArea.setEditable(true);
 		resolutionDescriptionTextArea.setEditable(true);
 		

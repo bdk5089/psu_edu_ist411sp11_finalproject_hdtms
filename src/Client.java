@@ -68,6 +68,8 @@ public class Client {
 				System.exit(-1);
 			}
 			
+			// TODO The activeTickets HashMap needs to be continously updated. We could spawn a thread that will do this
+			
 			// Get the list of active tickets
 			this.activeTickets = ticketServerObject.getActiveTickets();
 			

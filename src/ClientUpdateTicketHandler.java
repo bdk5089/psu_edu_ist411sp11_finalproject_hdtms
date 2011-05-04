@@ -54,12 +54,16 @@ public class ClientUpdateTicketHandler implements ActionListener {
 			ticketToUpdate.setDesc(clientTicketDialog.getSummaryDescriptionField());
 			ticketToUpdate.setResolution(clientTicketDialog.getResolutionDescriptionField());
 			
-			// Call checkInTicket on the RMI object to update the ticket on the server
+			// Call checkInTicket() on the RMI object to update the ticket on the server
 			try {
 				ticketServerObject.checkInTicket(ticketToUpdate);
 			} catch (RemoteException re) {
 				System.out.println(re.getMessage());
 			}
+			
+			// Close the ClientTicketDialog
+			clientTicketDialog.setVisible(false);
+			clientTicketDialog.dispose();
 		}
 	}
 }
