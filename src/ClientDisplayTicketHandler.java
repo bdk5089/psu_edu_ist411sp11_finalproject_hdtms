@@ -74,9 +74,10 @@ public class ClientDisplayTicketHandler extends MouseAdapter {
 				// TODO add a takenTickets hashmap that takes the ticketID and the Ticket object; represents the tickets taken by the client
 			}
 		} else if (source.equals("JButton")){
-			System.out.println("NEW BUTTON CLICKED");
+			System.out.println("New Button Clicked");
 			// Instantiate a new NewTicketDialog class
-			
+			ClientNewTicketDialog clientNewTicketDialog = new ClientNewTicketDialog(null, clientUser, activeTickets, ticketServerObject);
+			clientNewTicketDialog.setVisible(true);
 		}
 	}
 }
