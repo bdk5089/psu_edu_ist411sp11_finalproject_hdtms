@@ -58,12 +58,12 @@ public class Client {
 			ticketServerObject = (TicketServer) Naming.lookup("//" + IPAddress + "/TicketServer");
 			
 			// Logon to the server
-			boolean loggedOn = false;
+			User loggedOnUser = null;
 			System.out.println("   Logging On: "+this.username);
-			loggedOn = ticketServerObject.logon(this.username);
+			loggedOnUser = ticketServerObject.logon(this.username);
 			
 			// Check to see if the user was able to log on. If not, exit.
-			if (!loggedOn) {
+			if (loggedOnUser == null) {
 				System.out.println("   Error: Username " + this.username + " not in database.");
 				System.exit(-1);
 			}

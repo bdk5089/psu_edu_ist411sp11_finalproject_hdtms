@@ -17,7 +17,7 @@ import java.util.*;
 
 public interface TicketServer extends Remote {
 
-	public boolean logon(String username) throws RemoteException;
+	public User logon(String username) throws RemoteException;
 	
 	public boolean logoff(String username) throws RemoteException;
 	

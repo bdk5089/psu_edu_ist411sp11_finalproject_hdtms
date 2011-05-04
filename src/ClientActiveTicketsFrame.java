@@ -23,6 +23,7 @@ public class ClientActiveTicketsFrame extends JFrame {
 	
 	public static void main(String[] args) {
 		// Create the ClientActiveTicketsFrame
+		// FOR TESTING PURPOSES!!!
 		ClientActiveTicketsFrame test  = new ClientActiveTicketsFrame("anonymous",new HashMap<String,Ticket>(),null);
 		test.setSize(400, 300);
 		test.setVisible(true);
