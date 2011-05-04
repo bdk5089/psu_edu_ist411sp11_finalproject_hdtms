@@ -40,33 +40,41 @@ public class ClientDisplayTicketHandler extends MouseAdapter {
 	
 	public void mouseClicked(MouseEvent evt) {
 		// Get the source of the clicks
-		JList list = (JList) evt.getSource();
 		
-		// Get the number of clicks
-		numberOfClicks = evt.getClickCount();
+		String source = evt.getSource().getClass().getSimpleName();
 		
-		// Check for a double-click
-		if (numberOfClicks == 2) {
-			int index = list.locationToIndex(evt.getPoint());
+		if (source.equals("JList")){
 			
-			// Get the ticketID by grabbing the object representing the ID nubmer, casting to Integer and getting the int value
-			Ticket selected = (Ticket) list.getModel().getElementAt(index);
-			Integer ticketID = selected.getID();
-			System.out.println("Displaying ticket " + index + ": " + ticketID.toString());
+			JList list = (JList) evt.getSource();
 			
-			// Instantiate a JDialog displaying the ticket information and allowing the user to modify it
-			ClientTicketDialog currentTicketDialog = new ClientTicketDialog(null, clientUsername, ticketID.toString(), activeTickets, ticketServerObject);
+			// Get the number of clicks
+			numberOfClicks = evt.getClickCount();
 			
-			// Call checkOutTicket on the RMI object using the method invocation that passes the Ticket object
-			try {
-				ticketServerObject.checkOutTicket(clientUsername, selected);
-			} catch (RemoteException re) {
-				System.out.println(re.getMessage());
+			// Check for a double-click
+			if (numberOfClicks == 2) {
+				int index = list.locationToIndex(evt.getPoint());
+				
+				// Get the ticketID by grabbing the object representing the ID nubmer, casting to Integer and getting the int value
+				Ticket selected = (Ticket) list.getModel().getElementAt(index);
+				Integer ticketID = selected.getID();
+				System.out.println("Displaying ticket " + index + ": " + ticketID.toString());
+				
+				// Instantiate a JDialog displaying the ticket information and allowing the user to modify it
+				ClientTicketDialog currentTicketDialog = new ClientTicketDialog(null, clientUsername, ticketID.toString(), activeTickets, ticketServerObject);
+				
+				// Call checkOutTicket on the RMI object using the method invocation that passes the Ticket object
+				try {
+					ticketServerObject.checkOutTicket(clientUsername, selected);
+				} catch (RemoteException re) {
+					System.out.println(re.getMessage());
+				}
+				
+				currentTicketDialog.setVisible(true);
+				
+				// TODO add a takenTickets hashmap that takes the ticketID and the Ticket object; represents the tickets taken by the client
 			}
-			
-			currentTicketDialog.setVisible(true);
-			
-			// TODO add a takenTickets hashmap that takes the ticketID and the Ticket object; represents the tickets taken by the client
+		}else if (source.equals("JButton")){
+			System.out.println("NEW BUTTON CLICKED");
 		}
 	}
 }

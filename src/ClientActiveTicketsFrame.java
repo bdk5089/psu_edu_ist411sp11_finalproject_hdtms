@@ -21,6 +21,13 @@ public class ClientActiveTicketsFrame extends JFrame {
 	private JList activeTicketsToDisplay;
 	private TicketServer ticketServerObject;
 	
+	public static void main(String[] args) {
+		// Create the ClientActiveTicketsFrame
+		ClientActiveTicketsFrame test  = new ClientActiveTicketsFrame("anonymous",new HashMap<String,Ticket>(),null);
+		test.setSize(400, 300);
+		test.setVisible(true);
+	}	
+	
 	/**
 	*	ClientActiveTicketsFrame(String clientUsername, HashMap<String, Ticket> activeTickets)
 	*	@param clientUsername is the username associated with the Client object instantiating this ClientActiveTicketsFrame.
@@ -50,9 +57,18 @@ public class ClientActiveTicketsFrame extends JFrame {
 		JLabel clientUsernameLabel = new JLabel("Logged in as: " + clientUsername);
 		clientActiveTicketsFrameContentPane.add(clientUsernameLabel, BorderLayout.NORTH);
 		
+		// Create a button to add new tickets
+		JPanel buttonPanel = new JPanel(new BorderLayout());
+		JButton newButton = new JButton("New Ticket");
+		buttonPanel.add(newButton, BorderLayout.CENTER);
+		buttonPanel.setMaximumSize(new Dimension(10000,60));
+		clientActiveTicketsFrameContentPane.add(buttonPanel, BorderLayout.SOUTH);
+		
+		
 		// Create handler for double-clicks on the active tickets list
 		ClientDisplayTicketHandler clientDisplayTicketHandler = new ClientDisplayTicketHandler(clientUsername, activeTickets, ticketServerObject);
 		activeTicketsToDisplay.addMouseListener(clientDisplayTicketHandler);
+		newButton.addMouseListener(clientDisplayTicketHandler);
 	}
 	
 }

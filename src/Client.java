@@ -72,11 +72,12 @@ public class Client {
 			
 			// Get the list of active tickets
 			this.activeTickets = ticketServerObject.getActiveTickets();
-			
+				
 			// Ininialize the GUI
 			this.activeTicketsFrame = new ClientActiveTicketsFrame(username, activeTickets, ticketServerObject);
-			this.activeTicketsFrame.setSize(200, 600);
-			this.activeTicketsFrame.setVisible(true);	
+			this.activeTicketsFrame.setSize(400, 300);
+			this.activeTicketsFrame.setVisible(true);
+			
 		} catch (Exception e) {
 			// Exception handling code
 			System.out.println("  Error Message: " + e.getMessage());
@@ -84,5 +85,6 @@ public class Client {
 		}
 		
 		System.out.println("*************************************************");
+		
 	}
 }
