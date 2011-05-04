@@ -1,7 +1,7 @@
 @echo off
 
 set bin=./bin
-set CLASSPATH=%bin%/%CLASSPATH%
+set CLASSPATH=%bin%/;%CLASSPATH%
 echo CLASSPATH=%CLASSPATH%
 start rmiregistry
 
