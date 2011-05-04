@@ -11,6 +11,7 @@
 */
 
 import java.util.*;
+import java.util.Date;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -53,7 +54,7 @@ public class ClientNewTicketHandler implements ActionListener {
 			String newResolution = clientNewTicketDialog.getResolutionDescriptionField();
 			
 			// Create a ticket
-			Ticket newTicket = new Ticket(newDescription, newResolution, 1, 1, clientUser, new Timestamp(new java.util.Date().getTime()));
+			Ticket newTicket = new Ticket(newDescription, newResolution, null, null, clientUser, new Timestamp(new Date().getTime()));
 			
 			// Call checkInTicket() on the RMI object to update the ticket on the server
 			try {
