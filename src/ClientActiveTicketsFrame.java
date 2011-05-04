@@ -68,7 +68,7 @@ public class ClientActiveTicketsFrame extends JFrame {
 		
 		
 		// Create handler for double-clicks on the active tickets list
-		ClientDisplayTicketHandler clientDisplayTicketHandler = new ClientDisplayTicketHandler(clientUser, activeTickets, ticketServerObject);
+		ClientDisplayTicketHandler clientDisplayTicketHandler = new ClientDisplayTicketHandler(clientUser, activeTickets, ticketServerObject, this);
 		activeTicketsToDisplay.addMouseListener(clientDisplayTicketHandler);
 		newButton.addMouseListener(clientDisplayTicketHandler);
 	}

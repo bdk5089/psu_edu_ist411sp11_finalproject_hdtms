@@ -61,6 +61,9 @@ public class ClientUpdateTicketHandler implements ActionListener {
 				System.out.println(re.getMessage());
 			}
 			
+			// Refresh the activeTickets HashMap
+			activeTickets = ticketServerObject.getActiveTickets();
+			
 			// Close the ClientTicketDialog
 			clientTicketDialog.setVisible(false);
 			clientTicketDialog.dispose();

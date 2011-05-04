@@ -19,8 +19,8 @@ public class ClientDisplayTicketHandler extends MouseAdapter {
 	
 	private User clientUser;
 	private HashMap<String, Ticket> activeTickets;
-	
 	private TicketServer ticketServerObject;
+	private ClientActiveTicketsFrame clientActiveTicketsFrame;
 	
 	private int numberOfClicks;
 	
@@ -30,12 +30,13 @@ public class ClientDisplayTicketHandler extends MouseAdapter {
 	*	@param activeTickets is the HashMap containing the active tickets, passed in from the Client.
 	*	@param ticketServerObject is the RMI object representing the server. It will be used for callbacks to update the Ticket.
 	*/
-	public ClientDisplayTicketHandler(User clientUser, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject) {
+	public ClientDisplayTicketHandler(User clientUser, HashMap<String, Ticket> activeTickets, TicketServer ticketServerObject, ClientActiveTicketsFrame clientActiveTicketsFrame) {
 		super();
 		
 		this.clientUser = clientUser;
 		this.activeTickets = activeTickets;
 		this.ticketServerObject = ticketServerObject;
+		this.clientActiveTicketsFrame = clientActiveTicketsFrame;
 	}
 	
 	public void mouseClicked(MouseEvent evt) {
